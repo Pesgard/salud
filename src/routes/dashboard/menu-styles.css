@@ -1,0 +1,110 @@
+.circle-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .circle-menu {
+    position: relative;
+    width: 120vw;
+    max-width: 32em;
+    height: 120vw;
+    max-height: 32em;
+    border: dashed 2px #cccccc;
+    border-radius: 50%;
+    margin: 3vw auto 7vw;
+  }
+  
+  .center-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .center-content img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+  
+  .circle-menu a {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8em;
+    height: 8em;
+    line-height: 8em;
+    margin: -4em; /* Ajuste para centrar correctamente */
+    border-radius: 50%; /* Modificado para un círculo perfecto */
+    text-align: center;
+    text-decoration: none;
+    color: white;
+    box-sizing: border-box;
+  }
+  
+  .circle-menu a:hover {
+    opacity: 1;
+  }
+  
+ /* Distribuir 11 elementos uniformemente */
+.circle-menu a {
+    background: #3e92cc; /* Color de fondo por defecto */
+    opacity: 0.6;
+    color: #fff; /* Color del texto */
+  }
+  
+  .circle-menu ul li:nth-child(1) a {
+    transform: rotate(0deg) translate(16em) rotate(-0deg);
+    background: #0b3c5d; /* Azul oscuro */
+  }
+  
+  .circle-menu ul li:nth-child(2) a {
+    transform: rotate(32.73deg) translate(16em) rotate(-32.73deg);
+    background: #0d4e6e; /* Azul */
+  }
+  
+  .circle-menu ul li:nth-child(3) a {
+    transform: rotate(65.45deg) translate(16em) rotate(-65.45deg);
+    background: #0e5f80; /* Azul */
+  }
+  
+  .circle-menu ul li:nth-child(4) a {
+    transform: rotate(98.18deg) translate(16em) rotate(-98.18deg);
+    background: #0f718f; /* Azul */
+  }
+  
+  .circle-menu ul li:nth-child(5) a {
+    transform: rotate(130.91deg) translate(16em) rotate(-130.91deg);
+    background: #1182a1; /* Azul */
+  }
+  
+  .circle-menu ul li:nth-child(6) a {
+    transform: rotate(163.64deg) translate(16em) rotate(-163.64deg);
+    background: #1394b2; /* Azul */
+  }
+  
+  .circle-menu ul li:nth-child(7) a {
+    transform: rotate(196.36deg) translate(16em) rotate(-196.36deg);
+    background: #14a5c4; /* Azul */
+  }
+  
+  .circle-menu ul li:nth-child(8) a {
+    transform: rotate(229.09deg) translate(16em) rotate(-229.09deg);
+    background: #16b7d6; /* Azul */
+  }
+  
+  .circle-menu ul li:nth-child(9) a {
+    transform: rotate(261.82deg) translate(16em) rotate(-261.82deg);
+    background: #17c9e7; /* Azul */
+  }
+  
+  .circle-menu ul li:nth-child(10) a {
+    transform: rotate(294.55deg) translate(16em) rotate(-294.55deg);
+    background: #19daf9; /* Azul */
+  }
+  
+  .circle-menu ul li:nth-child(11) a {
+    transform: rotate(327.27deg) translate(16em) rotate(-327.27deg);
+  }
+  
