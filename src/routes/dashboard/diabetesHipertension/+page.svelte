@@ -1,8 +1,8 @@
 <script>
 	//Formularios
-	import Diabetes from '../../../components/formularios/Diabetes/Diabetes.svelte';
-	import Glucosa from '../../../components/formularios/Diabetes/Glucosa.svelte';
-	import Presion from '../../../components/formularios/Diabetes/Presion.svelte';
+	import Diabetes from  '$lib/Diabetes/Diabetes.svelte';
+	import Glucosa from '../../../lib/Diabetes/Glucosa.svelte';
+	import Presion from '../../../lib/Diabetes/Presion.svelte';
 
 	//Libreria
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
