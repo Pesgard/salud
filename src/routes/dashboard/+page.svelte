@@ -17,14 +17,14 @@
 			<li>
 				<a class="opcion1" href="/dashboard/biologicos">Biologicos</a>
 			</li>
-			<li><a class="opcion2" href="/opcion2">Opcion 2</a></li>
-			<li><a class="opcion3" href="#">Opcion 3</a></li>
-			<li><a class="opcion4" href="#">Opcion 4</a></li>
-			<li><a class="opcion5" href="#">Opcion 5</a></li>
-			<li><a class="opcion6" href="#">Opcion 6</a></li>
-			<li><a class="opcion7" href="#">Opcion 7</a></li>
-			<li><a class="opcion8" href="#">Opcion 8</a></li>
-			<li><a class="opcion9" href="#">Opcion 9</a></li>
+			<li><a class="opcion2" href="/dashboard/estadoNutricional">Nutricional</a></li>
+			<li><a class="opcion3" href="/dashboard/diabetesHipertension">Diabetes</a></li>
+			<li><a class="opcion4" href="/dashboard/lipidos">Lipidos</a></li>
+			<li><a class="opcion5" href="/dashboard/RCP">RCP</a></li>
+			<li><a class="opcion6" href="/dashboard/actividadFisica">Actividad Fisica</a></li>
+			<li><a class="opcion7" href="/dashboard/drogas">Drogas</a></li>
+			<li><a class="opcion8" href="/dashboard/deficienciaVisual">Deficiencia Visual</a></li>
+			<li><a class="opcion9" href="/dashboard/saludBucal">Salud Bucal</a></li>
 			<li><a class="opcion10" href="#">Opcion 10</a></li>
 			<li><a class="opcion11" href="#">Opcion 11</a></li>
 		</ul>

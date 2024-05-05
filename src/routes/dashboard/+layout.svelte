@@ -2,7 +2,7 @@
 	import '../../app.postcss';
 	import { AppRail, AppRailAnchor, AppShell } from '@skeletonlabs/skeleton';
 	import '@fortawesome/fontawesome-free/css/all.min.css'
-</script>
+</script> 
 
 <AppShell>
 	<svelte:fragment slot="sidebarLeft">
