@@ -5,12 +5,23 @@
 
 	import { goto, invalidate } from '$app/navigation'; // Importa funciones de navegación del framework SvelteKit
 	import { onMount } from 'svelte'; // Importa la función onMount de Svelte
+	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
+	
+	initializeStores();
 
 	export let data; // Propiedad exportada llamada "data"
 	$: ({ session, supabase } = data); // Desestructura "data" en las variables "session" y "supabase" y establece una reactividad
 
+	$: logout = async () => {
+		const { error } = await supabase.auth.signOut();
+		if (error) {
+			console.error(error);
+		}
+	};
+
 	onMount(() => {
-		const { data } = supabase.auth.onAuthStateChange((_, newSession) => { // Escucha los cambios en el estado de autenticación de Supabase
+		const { data } = supabase.auth.onAuthStateChange((_, newSession) => {
+			// Escucha los cambios en el estado de autenticación de Supabase
 			if (!newSession) {
 				/**
 				 * Encola esto como una tarea para que la navegación no impida que la
@@ -29,13 +40,21 @@
 	});
 </script>
 
-<AppShell> <!-- Componente de la biblioteca @skeletonlabs/skeleton -->
-	<svelte:fragment slot="sidebarLeft"> <!-- Fragmento utilizado como slot en el componente AppShell -->
-		<AppRail width="w-36"> <!-- Componente de navegación lateral -->
+<Modal />
+
+<AppShell>
+	<!-- Componente de la biblioteca @skeletonlabs/skeleton -->
+	<svelte:fragment slot="sidebarLeft">
+		<!-- Fragmento utilizado como slot en el componente AppShell -->
+		<AppRail width="w-36">
+			<!-- Componente de navegación lateral -->
 			<!-- Default -->
-			<AppRailAnchor href="/dashboard"> <!-- Ancla de navegación -->
-				<svelte:fragment slot="lead"><i class="fa-solid fa-house text-4xl"></i></svelte:fragment> <!-- Fragmento utilizado como slot para el ícono -->
-				<span class="text-lg">Inicio</span> <!-- Texto del enlace -->
+			<AppRailAnchor href="/dashboard">
+				<!-- Ancla de navegación -->
+				<svelte:fragment slot="lead"><i class="fa-solid fa-house text-4xl"></i></svelte:fragment>
+				<!-- Fragmento utilizado como slot para el ícono -->
+				<span class="text-lg">Inicio</span>
+				<!-- Texto del enlace -->
 			</AppRailAnchor>
 
 			<AppRailAnchor href="/dashboard/pacientes">
@@ -67,17 +86,23 @@
 			</AppRailAnchor>
 
 			<!-- ---- Bottom ---- -->
-			<svelte:fragment slot="trail"> <!-- Fragmento utilizado como slot en el componente AppRail -->
-				<hr class="!border-t-4" /> <!-- Línea horizontal -->
-				<button type="button" class="btn btn-lg w-full bg-initial"> <!-- Botón -->
+			<svelte:fragment slot="trail">
+				<!-- Fragmento utilizado como slot en el componente AppRail -->
+				<hr class="!border-t-4" />
+				<!-- Línea horizontal -->
+				<button on:click={logout} type="button" class="btn btn-lg w-full bg-initial">
+					<!-- Botón -->
 					<span>
-						<i class="fa-solid fa-right-from-bracket"></i> <!-- Ícono -->
+						<i class="fa-solid fa-right-from-bracket"></i>
+						<!-- Ícono -->
 					</span>
-					<span>Salir</span> <!-- Texto del botón -->
+					<span>Salir</span>
+					<!-- Texto del botón -->
 				</button>
 			</svelte:fragment>
 		</AppRail>
 	</svelte:fragment>
 
-	<slot /> <!-- Slot para el contenido principal -->
+	<slot />
+	<!-- Slot para el contenido principal -->
 </AppShell>

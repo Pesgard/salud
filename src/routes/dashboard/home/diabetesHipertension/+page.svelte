@@ -1,8 +1,8 @@
 <script>
 	//Formularios
-	import Diabetes from '../../../components/formularios/Diabetes/Diabetes.svelte';
-	import Glucosa from '../../../components/formularios/Diabetes/Glucosa.svelte';
-	import Presion from '../../../components/formularios/Diabetes/Presion.svelte';
+	import Diabetes from '../../../../components/formularios/Diabetes/Diabetes.svelte';
+	import Glucosa from '../../../../components/formularios/Diabetes/Glucosa.svelte';
+	import Presion from '../../../../components/formularios/Diabetes/Presion.svelte';
 
 	//Libreria
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
@@ -31,9 +31,9 @@
 			{#if tabSet === 0}
 				<Diabetes />
 			{:else if tabSet === 1}
-				<Glucosa/>
+				<Glucosa />
 			{:else if tabSet === 2}
-				<Presion/>
+				<Presion />
 			{/if}
 		</svelte:fragment>
 	</TabGroup>

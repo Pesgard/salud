@@ -1,4 +1,3 @@
-<!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
 <script>
 	import '../.././app.postcss';
 	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
@@ -17,7 +16,7 @@
 			<svelte:fragment slot="trail">
 				<a
 					class="btn btn-sm variant-ghost-surface"
-					href="/pages/contactanos"
+					href="contactanos"
 					target="_blank"
 					rel="noreferrer"
 				>
@@ -40,6 +39,15 @@
 					rel="noreferrer"
 				>
 					Iniciar Sesion
+				</a>
+
+				<a
+					class="btn btn-sm variant-filled-surface"
+					href="registrar"
+					target="_blank"
+					rel="noreferrer"
+				>
+					Registrar
 				</a>
 			</svelte:fragment>
 		</AppBar>

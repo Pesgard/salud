@@ -1,11 +1,10 @@
 <script>
-    //Librerias
+	//Librerias
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 
-    // Formularios
-    import Lipidos from "../../../components/formularios/Lipidos/Lipidos.svelte"
-    import Historial from "../../../components/formularios/Lipidos/Historial.svelte"
-
+	// Formularios
+	import Lipidos from '../../../../components/formularios/Lipidos/Lipidos.svelte';
+	import Historial from '../../../../components/formularios/Lipidos/Historial.svelte';
 	// Tabs
 	let tabSet = 0;
 </script>
@@ -27,9 +26,9 @@
 		<!-- Tab Panels --->
 		<svelte:fragment slot="panel">
 			{#if tabSet === 0}
-				<Lipidos/>
+				<Lipidos />
 			{:else if tabSet === 1}
-				<Historial/>
+				<Historial />
 			{/if}
 		</svelte:fragment>
 	</TabGroup>
