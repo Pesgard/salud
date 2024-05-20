@@ -6,8 +6,13 @@
 	import { goto, invalidate } from '$app/navigation'; // Importa funciones de navegación del framework SvelteKit
 	import { onMount } from 'svelte'; // Importa la función onMount de Svelte
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
-	
-	initializeStores();
+
+	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom'; // Importa funciones de posicionamiento de Floating UI
+
+	import { storePopup } from '@skeletonlabs/skeleton'; // Importa la tienda storePopup de la biblioteca @skeletonlabs/skeleton
+	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow }); // Establece las funciones de posicionamiento en la tienda storePopup
+
+	initializeStores(); // Inicializa las tiendas de la biblioteca @skeletonlabs/skeleton
 
 	export let data; // Propiedad exportada llamada "data"
 	$: ({ session, supabase } = data); // Desestructura "data" en las variables "session" y "supabase" y establece una reactividad
