@@ -39,21 +39,17 @@
 			<li><a class="opcion3" href="dashboard/home/diabetesHipertension">Diabetes</a></li>
 			<!-- Menu option 3 -->
 			<li><a class="opcion4" href="dashboard/home/lipidos">Lipidos</a></li>
-			<!-- Menu option 4 -->
-			<li><a class="opcion5" href="dashboard/home/rcp">RCP</a></li>
 			<!-- Menu option 5 -->
-			<li><a class="opcion6" href="dashboard/home/actividadFisica">Actividad Fisica</a></li>
+			<li><a class="opcion5" href="dashboard/home/actividadFisica">Actividad Fisica</a></li>
 			<!-- Menu option 6 -->
-			<li><a class="opcion7" href="dashboard/home/drogas">Drogas</a></li>
+			<li><a class="opcion6" href="dashboard/home/drogas">Drogas</a></li>
 			<!-- Menu option 7 -->
-			<li><a class="opcion8" href="dashboard/home/deficienciaVisual">Deficiencia Visual</a></li>
+			<li><a class="opcion7" href="dashboard/home/deficienciaVisual">Deficiencia Visual</a></li>
 			<!-- Menu option 8 -->
-			<li><a class="opcion9" href="dashboard/home/saludBucal">Salud Bucal</a></li>
+			<li><a class="opcion8" href="dashboard/home/saludBucal">Salud Bucal</a></li>
 			<!-- Menu option 9 -->
-			<li><a class="opcion10" href="dashboard/home/cursosSeguridad">Cursos Seguridad</a></li>
+			<li><a class="opcion9" href="dashboard/home/cursosSeguridad">Cursos Seguridad</a></li>
 			<!-- Menu option 10 -->
-			<li><a class="opcion11" href="#">Opcion 11</a></li>
-			<!-- Menu option 11 -->
 		</ul>
 	</div>
 </div>

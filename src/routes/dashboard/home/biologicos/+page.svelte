@@ -1,5 +1,9 @@
 <script>
-	import Biologicos from '../../../../components/formularios/Biologicos.svelte';
+	import Biologicos from '../../../../components/formularios/biologicos/Biologicos.svelte';
+	// RTomar informacion del servidor
+	export let data;
+
+	let api = data.pacientes;
 </script>
 
 <!-- breadcrumb -->
@@ -11,5 +15,5 @@
 
 <!-- Contenedor -->
 <div class="max-w-full mx-auto space-y-4 flex flex-col items-center justify-center">
-	<Biologicos />
+	<Biologicos pacientes={api} />
 </div>

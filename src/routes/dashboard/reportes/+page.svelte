@@ -6,43 +6,7 @@
 	import Pagination from '../../../components/pacientes/dataTable/Pagination.svelte';
 	import ThFilter from '../../../components/pacientes/dataTable/ThFilter.svelte';
 	import ThSort from '../../../components/pacientes/dataTable/ThSort.svelte';
-	import AgregarPaciente from '../../../components/pacientes/modal/AgregarPaciente.svelte';
-	import EditarPaciente from '../../../components/pacientes/modal/EditarPaciente.svelte';
-	import type { ModalSettings, ModalComponent } from '@skeletonlabs/skeleton';
 	import { getModalStore } from '@skeletonlabs/skeleton';
-
-	const modalStore = getModalStore();
-
-	// Functions
-	function modalComponentForm(): void {
-		const c: ModalComponent = { ref: AgregarPaciente };
-		const modal: ModalSettings = {
-			type: 'component',
-			component: c,
-			title: 'Agregar Paciente',
-			body: 'Formulario para agregar un nuevo paciente.',
-			response: (r) => {}
-		};
-		modalStore.trigger(modal);
-	}
-
-	// Editar un paciente en un modal
-	function modalComponentEdit(info: any) {
-		console.log(info);
-
-		const c: ModalComponent = {
-			ref: EditarPaciente,
-			props: { info }
-		};
-		const modal: ModalSettings = {
-			type: 'component',
-			component: c,
-			title: 'Editar Paciente',
-			body: 'Formulario para editar un paciente.',
-			response: (r) => console.log('response:', r) // r is the form data
-		};
-		modalStore.trigger(modal);
-	}
 
 	// Data
 	export let data;
@@ -57,7 +21,7 @@
 
 <!-- breadcrumb -->
 <ol class="breadcrumb m-4">
-	<li class="crumb">Pacientes</li>
+	<li class="crumb">Reportes</li>
 	<li class="crumb-separator" aria-hidden>&rsaquo;</li>
 </ol>
 
@@ -70,16 +34,7 @@
 		<div
 			class="radio-group p-1 inline-flex flex-row gap-1 bg-surface-200-700-token border-surface-400-500-token rounded-token"
 		>
-			<h2 class="text-2xl">Pacientes</h2>
-		</div>
-		<div class="md:inline md:ml-4">
-			<button
-				on:click={modalComponentForm}
-				class="btn space-x-4 variant-filled-surface hover:variant-soft-primary"
-			>
-				<i class="fa-solid fa-plus text-sm"></i>
-				<small class="hidden md:inline-block">Agregar Pacientes</small>
-			</button>
+			<h2 class="text-2xl">Reportes</h2>
 		</div>
 	</header>
 
@@ -114,13 +69,13 @@
 						<td>{row.lastName}</td>
 						<td>{row.email}</td>
 						<td>
-							<button
-								on:click={() => modalComponentEdit(row)}
-								class="btn variant-filled-surface hover:variant-soft-primary"
+							<a
+								class="btn space-x-4 variant-filled-surface hover:variant-soft-primary"
+								href="reportes/{row.pacienteID}"
 							>
-								<i class="fa-solid fa-edit text-sm"></i>
-							</button></td
-						>
+								<i class="fa-solid fa-rectangle-list"></i>
+							</a>
+						</td>
 					</tr>
 				{/each}
 			</tbody>

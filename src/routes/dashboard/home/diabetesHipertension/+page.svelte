@@ -6,9 +6,11 @@
 
 	//Libreria
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
-
 	// Tabs
 	let tabSet = 0;
+
+	export let data;
+	let api = data.pacientes;
 </script>
 
 <!-- breadcrumb -->
@@ -29,12 +31,12 @@
 		<!-- Tab Panels --->
 		<svelte:fragment slot="panel">
 			{#if tabSet === 0}
-				<Diabetes />
+				<Diabetes pacientes={api} />
 			{:else if tabSet === 1}
 				<Glucosa />
 			{:else if tabSet === 2}
 				<Presion />
 			{/if}
-		</svelte:fragment>
+		</svelte:fragment>	
 	</TabGroup>
 </div>

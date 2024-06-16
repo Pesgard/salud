@@ -1,6 +1,8 @@
 <script lang="ts">
-	import { menuNavLinks, type List } from '$lib/links';
 	import { getModalStore } from '@skeletonlabs/skeleton';
+
+	// Lista de pacientes
+	export let pacientes: any[];
 
 	// Classes
 	const cBase =
@@ -15,19 +17,14 @@
 
 	// Local
 	let searchTerm = '';
-	let resultsCopy = [
-		...menuNavLinks['/docs'],
-		...menuNavLinks['/elements'],
-		...menuNavLinks['/svelte'],
-		...menuNavLinks['/utilities']
-	];
+	let resultsCopy = [...pacientes];
 	let results = resultsCopy;
 	const modalStore = getModalStore();
 
 	// Elements
 	let elemDocSearch: HTMLElement;
 
-	function filterList(list: List) {
+	function filterList(list: any[]) {
 		return list.filter((rowObj) => {
 			const formattedSearchTerm = searchTerm.toLowerCase() || '';
 			return Object.values(rowObj).join(' ').toLowerCase().includes(formattedSearchTerm);
@@ -36,9 +33,8 @@
 
 	function onInput(): void {
 		let resultsDeepCopy = structuredClone(resultsCopy);
-		results = resultsDeepCopy.filter((category) => {
-			category.list = filterList(category.list);
-			if (category.list.length) return category;
+		results = resultsDeepCopy.filter((paciente) => {
+			return filterList(paciente);
 		});
 	}
 
@@ -58,34 +54,43 @@
 			class={cSearchInput}
 			bind:value={searchTerm}
 			type="search"
-			placeholder="Search..."
+			placeholder="Buscar "
 			on:input={onInput}
 			on:keydown={onKeyDown}
 		/>
 	</header>
 	<!-- Results -->
+	<hr />
 	{#if results.length > 0}
 		<nav class="list-nav {cResults}" tabindex="-1">
-			{#each results as category}
-				<div class="text-sm font-bold p-4">{category.title}</div>
+			{#each results as paciente}
+				<!-- pacientes -->
 				<ul>
-					{#each category.list as link}
-						<li class="text-lg">
-							<a
-								class={cResultAnchor}
-								href={link.href}
-								on:click={() => {
-									modalStore.close();
-								}}
-							>
-								<div class="flex items-center gap-4">
-									<i class="fa-regular fa-file"></i>
-									<span class="flex-auto font-bold opacity-75">{link.label}</span>
-								</div>
-								<span class="hidden md:block text-xs opacity-50">{link.href}</span>
-							</a>
-						</li>
-					{/each}
+					<li class="text-lg">
+						<!-- Manejamos la selección del paciente sin usar formulario -->
+						<button
+							type="button"
+							class={cResultAnchor + ' flex w-full'}
+							on:click={() => {
+								if ($modalStore[0]) {
+									$modalStore[0].response(paciente.pacienteID);
+								}
+								// Actualizamos idPaciente y cerramos el modal
+								paciente = paciente.pacienteID;
+								modalStore.close();
+							}}
+						>
+							<!-- datos del paciente -->
+							<div class="flex items-center gap-4">
+								<i class="fa-solid fa-user text-xl"></i>
+								<!-- id del paciente en input -->
+								<span class="flex-auto font-bold opacity-75">
+									{paciente.firstName} {paciente.lastName}
+								</span>
+							</div>
+							<span class="hidden md:block text-xs opacity-50">{paciente.email}</span>
+						</button>
+					</li>
 				</ul>
 			{/each}
 		</nav>

@@ -1,5 +1,7 @@
 <script>
-import Fisica from "../../../../components/formularios/actividadFisica/Fisica.svelte";
+	import Fisica from '../../../../components/formularios/actividadFisica/Fisica.svelte';
+	export let data;
+	let api = data.pacientes;
 </script>
 
 <!-- breadcrumb -->
@@ -11,5 +13,5 @@ import Fisica from "../../../../components/formularios/actividadFisica/Fisica.sv
 
 <!-- Contenedor -->
 <div class="max-w-full mx-auto space-y-4 flex flex-col items-center justify-center">
-	<Fisica/>
+	<Fisica pacientes={api} />
 </div>

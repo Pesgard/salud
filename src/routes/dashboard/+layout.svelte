@@ -69,7 +69,7 @@
 				<span class="text-lg">Pacientes</span>
 			</AppRailAnchor>
 
-			<AppRailAnchor href="/dashboard/seguimiento">
+			<AppRailAnchor href="/dashboard/seguimientos">
 				<svelte:fragment slot="lead"
 					><i class="fa-solid fa-clipboard-list text-4xl"></i></svelte:fragment
 				>

@@ -1,4 +1,4 @@
-<script>
+<script lang>
 	//Librerias
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 
@@ -7,6 +7,10 @@
 	import Historial from '../../../../components/formularios/Lipidos/Historial.svelte';
 	// Tabs
 	let tabSet = 0;
+
+	export let data;
+	let api = data.pacientes;
+
 </script>
 
 <!-- breadcrumb -->
@@ -26,7 +30,7 @@
 		<!-- Tab Panels --->
 		<svelte:fragment slot="panel">
 			{#if tabSet === 0}
-				<Lipidos />
+				<Lipidos pacientes={api} />
 			{:else if tabSet === 1}
 				<Historial />
 			{/if}
