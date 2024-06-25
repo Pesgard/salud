@@ -179,7 +179,7 @@
 							bind:value={data.auxilios}
 						/>
 						<label class="flex items-center space-x-2">
-							<span class="label">DS3 RFC</span>
+							<span class="label">DC3 RFC</span>
 							<input
 								class="input"
 								type="text"
@@ -198,7 +198,7 @@
 						</label>
 						<input class="input" type="date" disabled={!rcpChecked} bind:value={data.rcp} />
 						<label class="flex items-center space-x-2">
-							<span class="label">DS3 RFC</span>
+							<span class="label">DC3 RFC</span>
 							<input class="input" type="text" disabled={!rcpChecked} bind:value={data.rcp_rfc} />
 						</label>
 					</div>
@@ -217,7 +217,7 @@
 							bind:value={data.incendios}
 						/>
 						<label class="flex items-center space-x-2">
-							<span class="label">DS3 RFC</span>
+							<span class="label">DC3 RFC</span>
 							<input
 								class="input"
 								type="text"
@@ -241,7 +241,7 @@
 							bind:value={data.confinados}
 						/>
 						<label class="flex items-center space-x-2">
-							<span class="label">DS3 RFC</span>
+							<span class="label">DC3 RFC</span>
 							<input
 								class="input"
 								type="text"
@@ -260,7 +260,7 @@
 						</label>
 						<input class="input" type="date" disabled={!otros1Checked} bind:value={data.otros1} />
 						<label class="flex items-center space-x-2">
-							<span class="label">DS3 RFC</span>
+							<span class="label">DC3 RFC</span>
 							<input
 								class="input"
 								type="text"
@@ -279,7 +279,7 @@
 						</label>
 						<input class="input" type="date" disabled={!otros2Checked} bind:value={data.otros2} />
 						<label class="flex items-center space-x-2">
-							<span class="label">DS3 RFC</span>
+							<span class="label">DC3 RFC</span>
 							<input
 								class="input"
 								type="text"
@@ -298,7 +298,7 @@
 						</label>
 						<input class="input" type="date" disabled={!otros3Checked} bind:value={data.otros3} />
 						<label class="flex items-center space-x-2">
-							<span class="label">DS3 RFC</span>
+							<span class="label">DC3 RFC</span>
 							<input
 								class="input"
 								type="text"
