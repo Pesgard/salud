@@ -10,7 +10,6 @@
 	max-width: 32em;
 	height: 120vw;
 	max-height: 32em;
-	border: dashed 2px #cccccc;
 	border-radius: 50%;
 	margin: 3vw auto 7vw;
 }
@@ -57,7 +56,7 @@
 /* Distribuir 9 elementos uniformemente */
 .circle-menu ul li:nth-child(1) a {
   transform: rotate(0deg) translate(16em) rotate(-0deg);
-  background: #0b3c5d; /* Azul oscuro */
+  background: #0b3c5d; /* Azul oscuro */  
 }
 
 .circle-menu ul li:nth-child(2) a {

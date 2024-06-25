@@ -9,6 +9,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase } }): P
     .from(requestBody.tableName) // Use the table name from the request
     .select('*')
     .eq('pacienteID', requestBody.pacienteID);
+    // console.log(fetchedData);
 
   if (error) {
     console.error('Error fetching data from supabase:', error);

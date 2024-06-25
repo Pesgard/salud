@@ -17,7 +17,7 @@
 
 	// Calcular promedios
 	pacientes = calcularPromedios(pacientes, seguimientos);
-	console.log(pacientes);
+	// console.log(pacientes);
 
 	// Función para calcular los promedios y asignarlos a los pacientes
 	function calcularPromedios(pacientes: any[], seguimientos: any[]) {
@@ -67,7 +67,7 @@
 
 	// funcion para abrir el modal
 	function modalComponentPorcentajes(info: any, firstName: string, lastName: string) {
-		console.log(info);
+		// console.log(info);
 		const c: ModalComponent = {
 			ref: VerPorcentajes,
 			props: { porcentajes: info, firstName, lastName }
@@ -111,25 +111,33 @@
 			<thead>
 				<tr>
 					<ThSort {handler} orderBy="firstName">Nombre</ThSort>
-					<ThSort {handler} orderBy="lastName">Apellido</ThSort>
+					<ThSort {handler} orderBy="tipoPaciente">Enfermedad Concomitante</ThSort>
 					<ThSort {handler} orderBy="porcentaje">Porcentaje</ThSort>
 					<th>Acciones</th>
+					<th></th>
 				</tr>
 				<tr>
 					<ThFilter {handler} filterBy="firstName" />
-					<ThFilter {handler} filterBy="lastName" />
+					<ThFilter {handler} filterBy="tipoPaciente" />
 					<ThFilter {handler} filterBy="porcentaje" />
 					<th class="text-sm text-surface-400">Ver detalles</th>
+					<th class="text-sm text-surface-400">Enviar Correo</th>
 				</tr>
 			</thead>
 			<tbody>
 				{#each $rows as row}
 					<tr>
-						<td>{row.firstName}</td>
-						<td>{row.lastName}</td>
+						<td>{row.firstName + ' ' + row.lastName}</td>
+						<td>
+							{#if row.tipoPaciente == null}
+								Sin registrar
+							{:else}
+								{row.tipoPaciente}
+							{/if}
+						</td>
 						<td class="flex flex-row items-center justify-center">
-							<ProgressRadial value={row.porcentaje.toFixed(2)} width="w-16" font={105}>
-								{row.porcentaje.toFixed(2)}%
+							<ProgressRadial value={row.porcentaje.toFixed(0)} width="w-16" font={105}>
+								{row.porcentaje.toFixed(0)}%
 							</ProgressRadial>
 						</td>
 						<td>
@@ -140,6 +148,15 @@
 									class="btn variant-filled-surface hover:variant-soft-primary"
 								>
 									<i class="fa-solid fa-eye"></i>
+								</button>
+							</div>
+						</td>
+						<td>
+							<div class="flex flex-row items-center justify-center">
+								<button
+									class="btn variant-filled-surface hover:variant-soft-primary"
+								>
+									<i class="fa-solid fa-envelope"></i>
 								</button>
 							</div>
 						</td>

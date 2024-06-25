@@ -39,7 +39,7 @@ export const POST: RequestHandler = async ({
 
 		//Asignar el nuevo id al objeto
 		requestBody.data.id = newId;
-		console.log(requestBody.data);
+		//console.log(requestBody.data);
 
 		// Insertar el nuevo objeto en la tabla
 		const { error } = await supabase.from(requestBody.tableName).insert(requestBody.data);
@@ -68,6 +68,15 @@ export const POST: RequestHandler = async ({
 			return new Response(JSON.stringify({ error: 'Error al actualizar los seguimientos' }), {
 				status: 500
 			});
+		}
+
+		if (requestBody.tableName === 'diabetes') {
+			const { error: diabetesError } = await supabase
+				.from('pacientes')
+				.update({
+					tipoPaciente: requestBody.data.tipoPaciente
+				})
+				.eq('pacienteID', requestBody.data.pacienteID);
 		}
 
 		return new Response(JSON.stringify({ info: 'Datos insertados con exito' }), {
@@ -107,6 +116,15 @@ export const POST: RequestHandler = async ({
 			});
 		}
 
+		if (requestBody.tableName === 'diabetes') {
+			const { error: diabetesError } = await supabase
+				.from('pacientes')
+				.update({
+					tipoPaciente: requestBody.data.tipoPaciente
+				})
+				.eq('pacienteID', requestBody.data.pacienteID);
+		}
+
 		return new Response(JSON.stringify({ info: 'Datos Actualizados con exito' }), {
 			status: 200,
 			headers: {
@@ -128,6 +146,6 @@ function setEmptyValuesToNull(obj: Record<string, unknown>): Record<string, unkn
 			newObj[key] = obj[key];
 		}
 	}
-	console.log(newObj);
+	// console.log(newObj);
 	return newObj;
 }

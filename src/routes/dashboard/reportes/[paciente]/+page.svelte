@@ -8,6 +8,12 @@
 	let tabSet = 0;
 </script>
 
+<ol class="breadcrumb m-4">
+	<li class="crumb"><a class="anchor" href="/dashboard/reportes">Reportes</a></li>
+	<li class="crumb-separator" aria-hidden>&rsaquo;</li>
+	<li class="crumb">Detalles</li>
+</ol>
+
 <div class="max-w-full mx-auto space-y-4 flex flex-col items-center justify-center">
 	<TabGroup>
 		<Tab bind:group={tabSet} name="tab1" value={0}>

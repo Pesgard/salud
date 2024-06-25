@@ -15,8 +15,14 @@
 	export let info: any;
 
 	const modalStore = getModalStore();
-
 	console.log(info);
+
+	let tipoPaciente = info.tipoPaciente;
+
+	// si el tipo paciente es nulo
+	if (tipoPaciente == null) {
+		tipoPaciente = 'Sin registrar';
+	}
 
 	// Form Data
 	const formData = {
@@ -39,7 +45,8 @@
 		municipio: info.municipio,
 		estado: info.estado,
 		pais: info.pais,
-		imagen: info.imagen
+		imagen: info.imagen,
+		tipoPaciente: tipoPaciente
 	};
 
 	function onChange() {
@@ -287,11 +294,22 @@
 				</div>
 
 				<div class="space-y-4 w-fit flex flex-col items-center justify-center align-middle">
-					
 					<!-- ID -->
-					<label class="label">
-						<span>ID del paciente</span>
+					<label class="label" hidden>
+						<span>ID de paciente</span>
 						<input name="id" class="input" type="text" value={formData.id} readonly />
+					</label>
+
+					<!-- Tipo Paciente -->
+					<label class="label">
+						<span>Enfermedad Concomitante</span>
+						<input
+							name="tipoPaciente"
+							class="input"
+							type="text"
+							value={formData.tipoPaciente}
+							readonly
+						/>
 					</label>
 
 					<!-- Mostrar imagen del paciente -->

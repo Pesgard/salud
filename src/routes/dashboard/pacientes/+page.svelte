@@ -94,14 +94,12 @@
 				<tr>
 					<ThSort {handler} orderBy="pacienteID">No</ThSort>
 					<ThSort {handler} orderBy="firstName">Nombre</ThSort>
-					<ThSort {handler} orderBy="lastName">Apellido</ThSort>
 					<ThSort {handler} orderBy="email">Email</ThSort>
 					<th>Acciones</th>
 				</tr>
 				<tr>
 					<ThFilter {handler} filterBy="pacienteID" />
 					<ThFilter {handler} filterBy="firstName" />
-					<ThFilter {handler} filterBy="lastName" />
 					<ThFilter {handler} filterBy="email" />
 					<th class="text-sm text-surface-400">Ver detalles</th>
 				</tr>
@@ -110,8 +108,7 @@
 				{#each $rows as row}
 					<tr>
 						<td>{row.pacienteID}</td>
-						<td>{row.firstName}</td>
-						<td>{row.lastName}</td>
+						<td>{row.firstName + " " + row.lastName}</td>
 						<td>{row.email}</td>
 						<td>
 							<button
