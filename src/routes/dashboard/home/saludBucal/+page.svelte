@@ -7,7 +7,7 @@
 
 <!-- breadcrumb -->
 <ol class="breadcrumb m-4">
-	<li class="crumb"><a class="anchor" href="/dashboard">Inicio</a></li>
+	<li class="crumb"><a class="anchor" href="/dashboard">Consultar</a></li>
 	<li class="crumb-separator" aria-hidden>&rsaquo;</li>
 	<li class="crumb">Salud Bucal</li>
 </ol>

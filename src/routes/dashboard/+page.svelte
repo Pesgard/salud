@@ -19,7 +19,7 @@
 <!-- HTML code outside the script tag -->
 <div>
 	<ol class="breadcrumb m-4">
-		<li class="crumb">Inicio</li>
+		<li class="crumb">Consultar</li>
 		<!-- Breadcrumb item for "Inicio" -->
 		<li class="crumb-separator" aria-hidden>&rsaquo;</li>
 		<!-- Breadcrumb separator -->

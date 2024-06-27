@@ -8,38 +8,66 @@
 	import ThSort from '../../../components/pacientes/dataTable/ThSort.svelte';
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import CrearMedicamento from './modals/CrearMedicamento.svelte';
+	import EditarMedicamento from './modals/EditarMedicamento.svelte';
 
 	// Data
 	export let data;
-	$: ({ medicamentos } = data);
 
 	let api = data.medicamentos;
-	// console.log(api);
+	console.log(api);
 
 	const handler = new DataHandler(api, { rowsPerPage: 5 });
 	const rows = handler.getRows();
 
-    // Modal
-    const modalStore = getModalStore();
-    const modalComponent = {
-        ref: CrearMedicamento,
-        props: {}
-    };
+	// Modal
+	const modalStore = getModalStore();
 
-    // modal Settings
-    const modal: ModalSettings = {
-        type:'component',
-        component: modalComponent,
-        response(r) {
-            console.log('response:', r);
-        },
-    };
+	// ---------------------------- Modal Crear Medicamenteo ----------------------------
+	const modalComponent = {
+		ref: CrearMedicamento,
+		props: {}
+	};
 
-    // Open Modal
-    function openModal() {
-        modalStore.trigger(modal);
-    }
+	// modal Settings
+	const modal: ModalSettings = {
+		type: 'component',
+		component: modalComponent,
+		
+		response(r) {
+			console.log('response:', r);
+		}
+	};
 
+	// Open Modal
+	function openModal() {
+		modalStore.trigger(modal);
+	}
+
+	// ----------------------------------------------------------------
+
+	// ---------------------------- Modal Detalles Medicmanto ----------------------------
+
+	function openModalDetalles(medicamento: any) {
+
+		const modalComponentDetalles = {
+			ref: EditarMedicamento,
+			props: { medicamento }
+		};
+
+		// modal Settings
+		const modalDetalles: ModalSettings = {
+			type: 'component',
+			component: modalComponentDetalles,
+			title: 'Detalles Medicamento',
+			body: 'Formulario para editar un medicamento.',
+			response(r) {
+				console.log('response:', r);
+			}
+		};
+
+		modalStore.trigger(modalDetalles);
+		// console.log(medicamento);
+	}
 </script>
 
 <!-- <Tabla/> -->
@@ -56,32 +84,31 @@
 	<table class="table table-hover table-compact table-auto w-full">
 		<thead>
 			<tr>
-				<ThSort {handler} orderBy="pacienteID">Nombre</ThSort>
-				<ThSort {handler} orderBy="firstName">Ingrediente</ThSort>
-				<ThSort {handler} orderBy="lastName">Gramaje</ThSort>
+				<ThSort {handler} orderBy="nombre">Nombre</ThSort>
+				<ThSort {handler} orderBy="ingredienteActivo">Ingrediente</ThSort>
+				<ThSort {handler} orderBy="gramaje">Gramaje</ThSort>
 				<th>Acciones</th>
 			</tr>
 			<tr>
-				<ThFilter {handler} filterBy="pacienteID" />
-				<ThFilter {handler} filterBy="firstName" />
-				<ThFilter {handler} filterBy="lastName" />
+				<ThFilter {handler} filterBy="nombre" />
+				<ThFilter {handler} filterBy="ingredienteActivo" />
+				<ThFilter {handler} filterBy="gramaje" />
 				<th class="text-sm text-surface-400">Ver detalles</th>
 			</tr>
 		</thead>
 		<tbody>
-			{#each $rows as row}
+			{#each $rows as row, index}
 				<tr>
-					<td>{row.pacienteID}</td>
-					<td>{row.firstName}</td>
-					<td>{row.lastName}</td>
-					<td>{row.email}</td>
+					<td>{row.nombre}</td>
+					<td>{row.ingredienteActivo}</td>
+					<td>{row.gramaje + ' ' + row.tipo}</td>
 					<td>
-						<a
-							class="btn space-x-4 variant-filled-surface hover:variant-soft-primary"
-							href="reportes/{row.pacienteID}"
+						<button
+							class="btn variant-filled-surface hover:variant-soft-primary"
+							on:click={() => openModalDetalles(api[index])}
 						>
-							<i class="fa-solid fa-rectangle-list"></i>
-						</a>
+							<i class="fa-solid fa-circle-info"></i>
+						</button>
 					</td>
 				</tr>
 			{/each}

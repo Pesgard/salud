@@ -97,7 +97,7 @@
 		<div
 			class="radio-group p-1 inline-flex flex-row gap-1 bg-surface-200-700-token border-surface-400-500-token rounded-token"
 		>
-			<h2 class="h2">Seguimientos</h2>
+			<h2 class="text-2xl">Seguimientos</h2>
 		</div>
 	</header>
 

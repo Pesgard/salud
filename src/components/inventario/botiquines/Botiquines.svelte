@@ -11,24 +11,26 @@
 
 	// Data
 	export let data;
-	$: ({ botiquines } = data);
 
-	let api = data.botiquines;
-	console.log(api);
+	let botiquines = data.botiquines;
+	let medicamentos = data.medicamentos
+	// console.log(botiquines);
 
-	const handler = new DataHandler(api, { rowsPerPage: 5 });
+	const handler = new DataHandler(botiquines, { rowsPerPage: 5 });
 	const rows = handler.getRows();
 
 	// Modal
 	const modalStore = getModalStore();
 	const modalComponent = {
 		ref: CrearBotiquin,
-		props: {}
+		props: {medicamentos: medicamentos}
 	};
 
 	// modal Settings
 	const modal: ModalSettings = {
 		type: 'component',
+		title: 'Crear Botiquin',
+		body: 'Formulario para crear un nuevo botiquin.',
 		component: modalComponent,
 		response(r) {
 			console.log('response:', r);

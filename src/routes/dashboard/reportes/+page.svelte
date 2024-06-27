@@ -53,11 +53,6 @@
 	}
 </script>
 
-<!-- breadcrumb -->
-<ol class="breadcrumb m-4">
-	<li class="crumb">Reportes</li>
-	<li class="crumb-separator" aria-hidden>&rsaquo;</li>
-</ol>
 
 <!-- Contenedor -->
 <div class="max-w-full mx-auto space-y-4 flex flex-col items-center justify-center">

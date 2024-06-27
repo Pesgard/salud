@@ -4,16 +4,10 @@
 
 	// Props
 	/** Exposes parent props to this component. */
-	export let parent;
+	export let parent: any;
 
 	// Store
 	const modalStore = getModalStore();
-
-	// Sumbit Form
-	function submitForm() {
-		alert('Medicamento Agregado!');
-		parent.onClose();
-	}
 
 	// Base Classes
 	const cBase = 'card p-4 w-fit shadow-xl space-y-4';
@@ -27,7 +21,7 @@
 		<article>
 			{$modalStore[0].body ?? 'Completa los siguientes campos para agregar un nuevo medicamento.'}
 		</article>
-		<form method="POST" action="?/crearMedicamento">
+		<form method="POST" action="?/medicamento">
 			<div class="{cForm} flex flex-col gap-4">
 				<!-- Datos del Medicamento -->
 				<div class="space-y-4">
@@ -53,8 +47,8 @@
 
 					<p>Gramaje / Dosis</p>
 					<div class="input-group input-group-divider grid-cols-[1fr_auto]">
-						<input type="number" />
-						<select>
+						<input name="valor" type="number" />
+						<select name="dosis">
 							<option value="gr">gr</option>
 							<option value="ml">ml</option>
 						</select>
@@ -62,13 +56,23 @@
 
 					<label class="label">
 						<span>Fecha de Caducidad</span>
-						<input class="input" type="date" />
+						<input name="caducidad" class="input" type="date" />
 					</label>
 
 					<label class="label">
-						<span>No. Piezas</span>
+						<span>Caja</span>
 						<input
-							name="precio"
+							name="caja"
+							class="input"
+							type="number"
+							step="0.01"
+							placeholder="Caja..."
+						/>
+					</label>
+					<label class="label">
+						<span>Contenido Unitario</span>
+						<input
+							name="contenidoUnitario"
 							class="input"
 							type="number"
 							step="0.01"
@@ -79,7 +83,7 @@
 			</div>
 			<footer class="modal-footer {parent.regionFooter}">
 				<button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>Cancelar</button>
-				<button type="button" class="btn {parent.buttonPositive}" on:click={submitForm}>Agregar Medicamento</button>
+				<button formaction="?/medicamento" class="btn {parent.buttonPositive}">Agregar Medicamento</button>
 			</footer>
 		</form>
 	</div>

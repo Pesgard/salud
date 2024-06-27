@@ -5,17 +5,10 @@
 
 	// Data
 	export let data;
-	$: ({ medicamentos } = data);
-	let api = data.medicamentos;
+	$: ({ medicamentos, botiquines } = data);
 
 	let tabSet: number = 0;
 </script>
-
-<!-- breadcrumb -->
-<ol class="breadcrumb m-4">
-	<li class="crumb">Inventario</li>
-	<li class="crumb-separator" aria-hidden>&rsaquo;</li>
-</ol>
 
 <!-- Contenedor -->
 <div class="max-w-full mx-auto space-y-4 flex flex-col items-center justify-center">

@@ -55,12 +55,6 @@
 	const rows = handler.getRows();
 </script>
 
-<!-- breadcrumb -->
-<ol class="breadcrumb m-4">
-	<li class="crumb">Pacientes</li>
-	<li class="crumb-separator" aria-hidden>&rsaquo;</li>
-</ol>
-
 <!-- Contenedor -->
 <div class="max-w-full mx-auto space-y-4 flex flex-col items-center justify-center">
 	<!-- Header -->
@@ -92,13 +86,11 @@
 		<table class="table table-hover table-compact table-auto w-full">
 			<thead>
 				<tr>
-					<ThSort {handler} orderBy="pacienteID">No</ThSort>
 					<ThSort {handler} orderBy="firstName">Nombre</ThSort>
 					<ThSort {handler} orderBy="email">Email</ThSort>
 					<th>Acciones</th>
 				</tr>
 				<tr>
-					<ThFilter {handler} filterBy="pacienteID" />
 					<ThFilter {handler} filterBy="firstName" />
 					<ThFilter {handler} filterBy="email" />
 					<th class="text-sm text-surface-400">Ver detalles</th>
@@ -107,7 +99,6 @@
 			<tbody>
 				{#each $rows as row}
 					<tr>
-						<td>{row.pacienteID}</td>
 						<td>{row.firstName + " " + row.lastName}</td>
 						<td>{row.email}</td>
 						<td>

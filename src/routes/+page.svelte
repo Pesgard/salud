@@ -63,7 +63,7 @@
 		<!-- Main container of the page -->
 		<div class="space-y-10 text-center flex flex-col items-center">
 			<!-- Container for elements with space between them, vertically centered and aligned to the center -->
-			<h2 class="h2">GRUPO SALUD EN Movimiento</h2>
+			<h2 class="h2">Grupo Salud En Movimiento</h2>
 			<!-- Heading level 2 -->
 			<!-- Animated Logo -->
 			<img src={logo} alt="Logo Grupo salud en movimiento" />
