@@ -9,12 +9,13 @@
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import CrearMedicamento from './modals/CrearMedicamento.svelte';
 	import EditarMedicamento from './modals/EditarMedicamento.svelte';
+	import EliminarMedicamento from './modals/EliminarMedicamento.svelte';
 
 	// Data
 	export let data;
 
 	let api = data.medicamentos;
-	console.log(api);
+	// console.log(api);
 
 	const handler = new DataHandler(api, { rowsPerPage: 5 });
 	const rows = handler.getRows();
@@ -32,7 +33,7 @@
 	const modal: ModalSettings = {
 		type: 'component',
 		component: modalComponent,
-		
+
 		response(r) {
 			console.log('response:', r);
 		}
@@ -48,7 +49,6 @@
 	// ---------------------------- Modal Detalles Medicmanto ----------------------------
 
 	function openModalDetalles(medicamento: any) {
-
 		const modalComponentDetalles = {
 			ref: EditarMedicamento,
 			props: { medicamento }
@@ -68,6 +68,24 @@
 		modalStore.trigger(modalDetalles);
 		// console.log(medicamento);
 	}
+
+	function openModalDelete(idMedicamento: number, nombreMedicamento: string) {
+		const modalComponent = {
+			ref: EliminarMedicamento,
+			props: { idMedicamento, nombreMedicamento }
+		};
+
+		const modalDetalles: ModalSettings = {
+			type: 'component',
+			title: 'Eliminar Medicamento',
+			body: '¿Estás seguro de que deseas eliminar este medicamento?',
+			component: modalComponent,
+			response(r) {
+				console.log('response:', r);
+			}
+		};
+		modalStore.trigger(modalDetalles);
+	}
 </script>
 
 <!-- <Tabla/> -->
@@ -77,8 +95,14 @@
 		<div class="flex flex-row gap-8">
 			<RowsPerPage {handler} />
 			<button class="btn variant-filled-surface hover:variant-soft-primary" on:click={openModal}>
+				<span>Crear Medicamento</span>
 				<i class="fa-solid fa-plus" />
 			</button>
+
+			<a href="inventario/medicamentos" class="btn variant-ringed-surface hover:variant-soft-primary">
+				<span>Imprimir</span>
+				<i class="fa-solid fa-print" />
+			</a>
 		</div>
 	</header>
 	<table class="table table-hover table-compact table-auto w-full">
@@ -88,12 +112,14 @@
 				<ThSort {handler} orderBy="ingredienteActivo">Ingrediente</ThSort>
 				<ThSort {handler} orderBy="gramaje">Gramaje</ThSort>
 				<th>Acciones</th>
+				<th></th>
 			</tr>
 			<tr>
 				<ThFilter {handler} filterBy="nombre" />
 				<ThFilter {handler} filterBy="ingredienteActivo" />
 				<ThFilter {handler} filterBy="gramaje" />
 				<th class="text-sm text-surface-400">Ver detalles</th>
+				<th class="text-sm text-surface-400">Eliminar</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -110,7 +136,15 @@
 							<i class="fa-solid fa-circle-info"></i>
 						</button>
 					</td>
-				</tr>
+					<td>
+						<button
+							class="btn variant-filled-error"
+							on:click={() => openModalDelete(row.id, row.nombre + ' ' + row.gramaje + row.tipo)}
+						>
+							<i class="fa-solid fa-trash"></i>
+						</button>
+					</td></tr
+				>
 			{/each}
 		</tbody>
 	</table>

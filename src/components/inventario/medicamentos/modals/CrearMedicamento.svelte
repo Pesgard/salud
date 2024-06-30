@@ -49,7 +49,7 @@
 					<div class="input-group input-group-divider grid-cols-[1fr_auto]">
 						<input name="valor" type="number" />
 						<select name="dosis">
-							<option value="gr">gr</option>
+							<option value="mg">mg</option>
 							<option value="ml">ml</option>
 						</select>
 					</div>

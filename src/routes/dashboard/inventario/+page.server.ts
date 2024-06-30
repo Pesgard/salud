@@ -15,6 +15,19 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 
 	// Consulta a la tabla botiquines
 	const { data: botiquines } = await supabase.from('botiquines').select('*');
+	// Agregar la información de los detalles de los botiquines
+	for (let i = 0; botiquines && i < botiquines.length; i++) {
+		const idBotiquin = botiquines[i].id;
+		const { data: detalles } = await supabase
+			.from('detalleBotiquin')
+			.select(
+				'medicamento(nombre, ingredienteActivo, gramaje, tipo), cantidadUnitaria, idMedicamento'
+			)
+			.eq('idBotiquin', idBotiquin);
+		botiquines[i].detalles = detalles;
+	}
+
+	console.log(botiquines);
 
 	return { medicamentos, botiquines };
 };
@@ -126,14 +139,47 @@ export const actions: Actions = {
 		}
 	},
 
+	deleteMedicamento: async ({ request, locals: { supabase } }) => {
+		const formData = await request.formData();
+		console.log(formData);
+
+		const id = formData.get('idMedicamento') as string;
+
+		const { error: errorBotiquines } = await supabase
+			.from('detalleBotiquin')
+			.delete()
+			.eq('idMedicamento', id);
+		if (errorBotiquines) {
+			console.log(errorBotiquines);
+		} else {
+			const { error: errorDetalles } = await supabase
+				.from('detalleMedicamento')
+				.delete()
+				.eq('idMedicamento', id);
+
+			if (errorDetalles) {
+				console.log(errorDetalles);
+			} else {
+				const { error: errorMedicamento } = await supabase
+					.from('medicamento')
+					.delete()
+					.eq('id', id);
+
+				if (errorMedicamento) {
+					console.log(errorMedicamento);
+				}
+			}
+		}
+	},
+
 	crearBotiquin: async ({ request, locals: { supabase } }) => {
 		const formData = await request.formData();
 		//  console.log(formData);
 		const medicamentos = formData.get('medicinas') as string;
-		console.log(medicamentos);
+		// console.log(medicamentos);
 		// Parsear la cadena JSON a un objeto JavaScript
 		const medicamentosArray = JSON.parse(medicamentos);
-		console.log(medicamentosArray);
+		// console.log(medicamentosArray);
 
 		// Obtener la fecha actual en formato "aaaa-mm-dd"
 		const fechaEntrada = new Date();
@@ -190,5 +236,91 @@ export const actions: Actions = {
 		}
 
 		console.log(fechaCreacion, zona, idUsuario);
+	},
+
+	// Actualizar Medicamento de Botiquin
+	updateBotiquin: async ({ request, locals: { supabase } }) => {
+		const formData = await request.formData();
+		// console.log(formData);
+
+		const idMedicamento = formData.get('idMedicamento') as string;
+		const idBotiquin = formData.get('idBotiquin') as string;
+		const cantidadUnitaria = formData.get('cantidadUnitaria') as string;
+
+		const { error } = await supabase
+			.from('detalleBotiquin')
+			.update({
+				cantidadUnitaria: cantidadUnitaria
+			})
+			.eq('idBotiquin', idBotiquin)
+			.eq('idMedicamento', idMedicamento);
+
+		if (error) {
+			console.log(error);
+		}
+	},
+
+	// Agregar medicamento a botiquin
+	agregarMedicamento: async ({ request, locals: { supabase } }) => {
+		const formData = await request.formData();
+		// console.log(formData);
+
+		const idMedicamento = formData.get('idMedicamento') as string;
+		const idBotiquin = formData.get('idBotiquin') as string;
+		const cantidadUnitaria = formData.get('cantidadUnitaria') as string;
+
+		const { error } = await supabase.from('detalleBotiquin').insert([
+			{
+				idBotiquin: idBotiquin,
+				idMedicamento: idMedicamento,
+				cantidadUnitaria: cantidadUnitaria
+			}
+		]);
+
+		if (error) {
+			console.log(error);
+		}
+	},
+
+	// Eliminar medicamento de botiquin
+	eliminarMedicamento: async ({ request, locals: { supabase } }) => {
+		const formData = await request.formData();
+		// console.log(formData);
+
+		const idMedicamento = formData.get('idMedicamento') as string;
+		const idBotiquin = formData.get('idBotiquin') as string;
+
+		const { error } = await supabase
+			.from('detalleBotiquin')
+			.delete()
+			.eq('idBotiquin', idBotiquin)
+			.eq('idMedicamento', idMedicamento);
+
+		if (error) {
+			console.log(error);
+		}
+	},
+
+	//eliminar botiquin
+	deleteBotiquin: async ({ request, locals: { supabase } }) => {
+		const formData = await request.formData();
+		// console.log(formData);
+
+		const idBotiquin = formData.get('idBotiquin') as string;
+
+		const { error: errorDetalle } = await supabase
+			.from('detalleBotiquin')
+			.delete()
+			.eq('idBotiquin', idBotiquin);
+
+		if (errorDetalle) {
+			console.log(errorDetalle);
+		} else {
+			const { error } = await supabase.from('botiquines').delete().eq('id', idBotiquin);
+
+			if (error) {
+				console.log(error);
+			}
+		}
 	}
 };

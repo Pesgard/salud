@@ -13,10 +13,12 @@
 	let medicamentosBotiquin = '';
 	let piezas = 0;
 
+	// variable para habilitar el boton de agregar medicamento
+	let checkMedicamento = false;
+
 	// variable con lista de IDs de medicamentos en botiquin
 	let medicamentosBotiquinIDs: any[] = [];
 	$: medicamentosBotiquinIDsString = JSON.stringify(medicamentosBotiquinIDs);
-
 
 	// autocomplete options
 	const medicamentosOptions: AutocompleteOption<string>[] = medicamentos.map((medicamento: any) => {
@@ -32,14 +34,17 @@
 
 	function onMedicamentoButton(datosMedicamento: any) {
 		medicamentoSeleccionado = datosMedicamento;
+		checkMedicamento = true;
 	}
 
 	// funcion para agregar medicamentos al botiquin
 	function addMedicamentoButton(datosMedicamento: any, cantidad: any) {
-		medicamentosBotiquin += (datosMedicamento + ' - ' + cantidad) +'\n';
+		medicamentosBotiquin += datosMedicamento + ' / Piezas: ' + cantidad + '\n';
 		// obtener el id del medicamento en base al nombre, gramaje y tipo
 		let idMedicamento = medicamentos.find((medicamento: any) => {
-			return medicamento.nombre + ' ' + medicamento.gramaje + ' ' + medicamento.tipo === datosMedicamento;
+			return (
+				medicamento.nombre + ' ' + medicamento.gramaje + ' ' + medicamento.tipo === datosMedicamento
+			);
 		}).id;
 
 		// agregar el id del medicamento a la lista de medicamentos en y la cantidad de piezas
@@ -49,6 +54,7 @@
 		inputDemo = '';
 		medicamentoSeleccionado = '';
 		piezas = 0;
+		checkMedicamento = false;
 	}
 
 	let popupSettings: PopupSettings = {
@@ -68,7 +74,7 @@
 	const cBase = 'card bg-initial p-4 w-fit shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold flex justify-between items-center gap-4';
 	const cForm = 'p-4 flex flex-col'; // Ajustado para Flexbox vertical
-	const cColumnContainer = 'grid grid-cols-2 gap-4'; // Contenedor de columnas
+	const cColumnContainer = 'grid grid-cols-2 gap-4 mt-16'; // Contenedor de columnas
 </script>
 
 {#if $modalStore[0]}
@@ -91,7 +97,7 @@
 					class="input autocomplete"
 					type="search"
 					bind:value={inputDemo}
-					placeholder="Medicamentos..."
+					placeholder="Selecciona un medicamento"
 					use:popup={popupSettings}
 				/>
 				<button class="variant-filled-surface" on:click={() => onMedicamentoButton(inputDemo)}>
@@ -113,14 +119,27 @@
 			<div class={cColumnContainer}>
 				<!-- Aumentar / Disminuir cantidad de piezas Unitarias -->
 				<div class="flex flex-row gap-4 items-end justify-end w-full col-span-2">
-					<p>No. Piezas</p>
 					<div class="input-group input-group-divider grid grid-cols-[auto_1fr_auto]">
-						<div class="flex-grow">{medicamentoSeleccionado}</div>
-						<input type="number" placeholder="No. Piezas" bind:value={piezas} required />
+						<div class="flex-grow">
+							{#if !checkMedicamento}
+								<p class="text-surface-400">No. Piezas</p>
+							{:else}
+								<p>{medicamentoSeleccionado}</p>
+							{/if}
+						</div>
+						<input
+							type="number"
+							placeholder="No. Piezas"
+							bind:value={piezas}
+							disabled={!checkMedicamento}
+							required
+						/>
+
 						<button
-							class="variant-filled-secondary"
+							class={checkMedicamento ? "variant-filled-secondary": "variant-soft-secondary"}
 							type="button"
 							on:click={() => addMedicamentoButton(medicamentoSeleccionado, piezas)}
+							disabled={!checkMedicamento}
 						>
 							<i class="fa-solid fa-plus"></i>
 						</button>
@@ -138,7 +157,13 @@
 					></textarea>
 				</label>
 
-				<input class="input" type="text" name="medicinas" bind:value={medicamentosBotiquinIDsString} hidden />
+				<input
+					class="input"
+					type="text"
+					name="medicinas"
+					bind:value={medicamentosBotiquinIDsString}
+					hidden
+				/>
 
 				<label class="label col-span-2">
 					<span>Zona</span>
@@ -148,8 +173,12 @@
 
 				<!-- Footer debajo de las columnas -->
 				<footer class="modal-footer {parent.regionFooter} w-full mt-4 col-span-2">
-					<button class="btn {parent.buttonNeutral}" type="button" on:click={parent.onClose}>Cancelar</button>
-					<button formaction="?/crearBotiquin" class="btn {parent.buttonPositive}" type="submit">Crear Botiquin</button>
+					<button class="btn {parent.buttonNeutral}" type="button" on:click={parent.onClose}
+						>Cancelar</button
+					>
+					<button formaction="?/crearBotiquin" class="btn {parent.buttonPositive}" type="submit"
+						>Crear Botiquin</button
+					>
 				</footer>
 			</div>
 		</form>

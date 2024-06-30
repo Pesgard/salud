@@ -12,7 +12,7 @@
 		type ModalComponent,
 		type ModalSettings
 	} from '@skeletonlabs/skeleton';
-	import ImprimirReportes from '../../../components/reportes/imprimir/ImprimirReportes.svelte';
+	import Tablas from '../../../components/tablas/Tablas.svelte';
 
 	// Data
 	export let data;
@@ -23,36 +23,47 @@
 	let api = data.pacientes;
 	let porcentajes = data.seguimientos;
 
+	let clavesAExcluir = ['id', 'pacienteID'];
+
+	console.log(porcentajes);
+
 	const handler = new DataHandler(api, { rowsPerPage: 5 });
 	const rows = handler.getRows();
 
 	// Función para abrir el modal
-	function openModal(pacienteID: string) {
-		let porcentajesFiltrados = []; // Se mantiene como array
-		const porcentajesPaciente = porcentajes.find(
-			(porcentaje) => porcentaje.pacienteID === pacienteID
-		);
-		if (porcentajesPaciente) {
-			const { id, pacienteID, ...restoPorcentajes } = porcentajesPaciente;
-			// Convierte los valores del objeto restoPorcentajes en un array y lo asigna a porcentajesFiltrados
-			porcentajesFiltrados = Object.values(restoPorcentajes);
-		}
-	
+	function openModal(pacienteID: string, nombre: string) {
+		// Filtrar por pacienteID y convertir valores null a 0 y decimales a enteros
+		const porcentajesFiltrados = porcentajes
+			.filter((item) => item.pacienteID === pacienteID)
+			.map((item) => {
+				const newItem = { ...item };
+				Object.keys(newItem).forEach((key) => {
+					if (newItem[key] === null) newItem[key] = 0;
+					if (typeof newItem[key] === 'number') newItem[key] = Math.round(newItem[key]);
+				});
+				return newItem;
+			});
+
+		// console.log(porcentajesFiltrados[0]);
+
 		// Modal
 		const modalComponent: ModalComponent = {
-			ref: ImprimirReportes,
-			props: { pacienteID, porcentajes: porcentajesFiltrados } // Usa porcentajesFiltrados aquí
+			ref: Tablas,
+			props: {
+				data: porcentajesFiltrados[0],
+				excludeKeys: clavesAExcluir,
+				tituloTabla: 'Porcentajes de ' + nombre
+			} // Usa porcentajesFiltrados aquí
 		};
-	
+
 		const modal: ModalSettings = {
 			type: 'component',
 			component: modalComponent
 		};
-	
+
 		modalStore.trigger(modal);
 	}
 </script>
-
 
 <!-- Contenedor -->
 <div class="max-w-full mx-auto space-y-4 flex flex-col items-center justify-center">
@@ -65,6 +76,10 @@
 		>
 			<h2 class="text-2xl">Reportes</h2>
 		</div>
+		<a href="reportes/imprimir" class="btn variant-ghost-surface hover:variant-soft-primary">
+			<i class="fa-solid fa-print text-sm"></i>
+			<small class="hidden md:inline-block">Imprimir</small>
+		</a>
 	</header>
 
 	<!-- <Tabla/> -->
@@ -104,7 +119,7 @@
 						<td>
 							<!-- Botón para imprimir directamente, opcionalmente puede abrir el modal primero -->
 							<button
-								on:click={() => openModal(row.pacienteID)}
+								on:click={() => openModal(row.pacienteID, row.firstName + ' ' + row.lastName)}
 								class="btn variant-filled-surface hover:variant-soft-primary"
 							>
 								<i class="fa-solid fa-print"></i>

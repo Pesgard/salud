@@ -4,17 +4,7 @@
 
 	export let parent: any;
 	export let medicamento;
-	console.log(medicamento);
-
-	// Variables reactivas para controlar el estado de los inputs
-	let enableNombreMedicamento = false;
-	let enableIngredienteActivo = false;
-	let enableGramajeDosis = false;
-	let enableCantidad = false;
-	let enableFechaCaducidad = false;
-	let enableFechaEntrada = false;
-	let enableCaja = false;
-	let enableCantidadUnitaria = false;
+	// console.log(medicamento);
 
 	function closeModal() {
 		modalStore.close();
@@ -22,7 +12,7 @@
 
 	// Base Classes
 	const cBase = 'card p-4 w-fit shadow-xl space-y-4';
-	const cHeader = 'text-2xl font-bold';
+	const cHeader = 'text-2xl font-bold flex justify-between';
 	const cForm = 'border border-surface-500 p-4 flex flex-col'; // Ajustado para Flexbox vertical
 	const cColumnContainer = 'flex flex-row gap-4'; // Contenedor de columnas
 </script>
