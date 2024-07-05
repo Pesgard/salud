@@ -21,16 +21,16 @@
 			console.log(rawData);
 
 			// Transform the data
-			transformedData = Object.values(rawData).map(item => ({
-                nombre: item.medicamento.nombre,
-                ingredienteActivo: item.medicamento.ingredienteActivo,
-                gramaje: item.medicamento.gramaje,
-                tipo: item.medicamento.tipo,
-                caja: item.caja,
-                cantidad: item.cantidad,
-				fechaCaducidad: item.fechaCaducidad,
-				fechaEntrada: item.fechaEntrada,
-			}));
+				transformedData = Object.values(rawData).map((item: any) => ({
+					nombre: item.medicamento.nombre,
+					ingredienteActivo: item.medicamento.ingredienteActivo,
+					gramaje: item.medicamento.gramaje,
+					tipo: item.medicamento.tipo,
+					caja: item.caja,
+					cantidad: item.cantidad,
+					fechaCaducidad: item.fechaCaducidad,
+					fechaEntrada: item.fechaEntrada,
+				}));
 			
 			console.log(transformedData);
 			data = transformedData;

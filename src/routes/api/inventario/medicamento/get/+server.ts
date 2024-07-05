@@ -3,7 +3,7 @@ import type { RequestHandler } from '@sveltejs/kit';
 // Api para obtener la informacion de todos los botiquines , sus detalles y medicamentos asociados con detalles
 export const POST: RequestHandler = async ({ request, locals: { supabase } }): Promise<Response> => {
   const requestBody = await request.json();
-  // console.log(requestBody);
+  console.log(requestBody);
 
   const { data: fetchedData, error } = await supabase
     .from(requestBody.tableName) // Use the table name from the request
