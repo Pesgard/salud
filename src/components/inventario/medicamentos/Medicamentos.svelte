@@ -10,6 +10,7 @@
 	import CrearMedicamento from './modals/CrearMedicamento.svelte';
 	import EditarMedicamento from './modals/EditarMedicamento.svelte';
 	import EliminarMedicamento from './modals/EliminarMedicamento.svelte';
+	import EgresarMedicamento from './modals/EgresarMedicamento.svelte';
 
 	// Data
 	export let data;
@@ -86,6 +87,24 @@
 		};
 		modalStore.trigger(modalDetalles);
 	}
+
+	function openModalEgresar(medicamento: any) {
+		const modalComponent = {
+			ref: EgresarMedicamento,
+			props: { medicamento }
+		};
+
+		const modalEgresar: ModalSettings = {
+			type: 'component',
+			title: 'Egresar Medicamento',
+			body: 'Formulario para editar un medicamento.',
+			component: modalComponent,
+			response(r) {
+				console.log('response:', r);
+			}
+		};
+		modalStore.trigger(modalEgresar);
+	}
 </script>
 
 <!-- <Tabla/> -->
@@ -99,7 +118,10 @@
 				<i class="fa-solid fa-plus" />
 			</button>
 
-			<a href="inventario/medicamentos" class="btn variant-ringed-surface hover:variant-soft-primary">
+			<a
+				href="inventario/medicamentos"
+				class="btn variant-ringed-surface hover:variant-soft-primary"
+			>
 				<span>Imprimir</span>
 				<i class="fa-solid fa-print" />
 			</a>
@@ -113,6 +135,7 @@
 				<ThSort {handler} orderBy="gramaje">Gramaje</ThSort>
 				<th>Acciones</th>
 				<th></th>
+				<th></th>
 			</tr>
 			<tr>
 				<ThFilter {handler} filterBy="nombre" />
@@ -120,6 +143,7 @@
 				<ThFilter {handler} filterBy="gramaje" />
 				<th class="text-sm text-surface-400">Ver detalles</th>
 				<th class="text-sm text-surface-400">Eliminar</th>
+				<th class="text-sm text-surface-400">Egresar</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -143,8 +167,14 @@
 						>
 							<i class="fa-solid fa-trash"></i>
 						</button>
-					</td></tr
-				>
+					</td>
+					<td>
+						<button class="btn variant-filled-primary"
+						on:click={() => openModalEgresar(api[index])}>
+							<i class="fa-solid fa-minus"></i>
+						</button>
+					</td>
+				</tr>
 			{/each}
 		</tbody>
 	</table>
