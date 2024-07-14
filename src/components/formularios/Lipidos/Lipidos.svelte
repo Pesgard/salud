@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { FileButton, getModalStore } from '@skeletonlabs/skeleton';
+	import { FileButton, getModalStore, ProgressRadial } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 	import Buscador from '../../buscador/Buscador.svelte';
+	import type { LipidosFormulario } from '../../../interface/Formularios';
 
 	// parametro de componente
 	export let pacientes: any;
@@ -11,23 +12,64 @@
 	// check para habilitar y deshabilitar campos
 	let check = false;
 
-	//interface para los datos
-	interface Data {
-		id: number | null;
-		pacienteID: number;
-		date: Date | null;
-		hdl: number;
-		colesterol: number;
-		trigliceridos: number;
-		glucosa: number;
-		otros: string;
-		farmacos: string;
-		extra: string;
+	let nombrePaciente: string = '';
+
+	let completionPercentage = 0;
+	$: {
+		let totalFields = 0;
+		let filledFields = 0;
+
+		// Calcular totalFields y filledFields basado en la presencia de datos
+		if (data.date) filledFields++;
+		totalFields++;
+		if (data.hdl) filledFields++;
+		totalFields++;
+		if (data.colesterol) filledFields++;
+		totalFields++;
+		if (data.trigliceridos) filledFields++;
+		totalFields++;
+		if (data.glucosa) filledFields++;
+		totalFields++;
+		// if (data.otros) filledFields++;
+		// totalFields++;
+		if (data.farmacos) filledFields++;
+		totalFields++;
+		// if (data.extra) filledFields++;
+		// totalFields++;
+
+		// Calcular el porcentaje de completitud
+		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
 	}
 
-	let data: Data = {
+	function updateCompletionPercentage() {
+		let totalFields = 0;
+		let filledFields = 0;
+
+		if (data.date) filledFields++;
+		totalFields++;
+		if (data.hdl) filledFields++;
+		totalFields++;
+		if (data.colesterol) filledFields++;
+		totalFields++;
+		if (data.trigliceridos) filledFields++;
+		totalFields++;
+		if (data.glucosa) filledFields++;
+		totalFields++;
+		if (data.otros) filledFields++;
+		totalFields++;
+		if (data.farmacos) filledFields++;
+		totalFields++;
+		if (data.extra) filledFields++;
+		totalFields++;
+
+		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
+	}
+
+	//interface para los datos
+	let data: LipidosFormulario = {
 		id: null,
 		pacienteID: 0,
+		pacienteNombre: { firstName: '', lastName: '' },
 		date: null,
 		hdl: 0,
 		colesterol: 0,
@@ -66,6 +108,7 @@
 				console.error('Error fetching data:', errorData.error);
 				data = {
 					id: null,
+					pacienteNombre: { firstName: '', lastName: '' },
 					pacienteID: pacienteID,
 					date: null,
 					hdl: 0,
@@ -77,24 +120,26 @@
 					extra: ''
 				};
 				check = true;
+				nombrePaciente = errorData.pacienteNombre;
 				return null;
 			}
 			data = await response.json();
 			check = true;
+			nombrePaciente = data.pacienteNombre.firstName + ' ' + data.pacienteNombre.lastName;
 			return data;
 		} catch (error) {
 			console.error('Error:', error);
 			return null;
 		}
 	}
-	async function postLipidos(data: Data, tableName: string) {
+	async function postLipidos(data: LipidosFormulario, tableName: string, porcentaje: number) {
 		try {
 			const response = await fetch('/api/formularios/post', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ data, tableName })
+				body: JSON.stringify({ data, tableName, porcentaje })
 			});
 			if (!response.ok) {
 				const errorData = await response.json();
@@ -115,7 +160,8 @@
 	//funcion para el envio de datos de formulario
 	function handleSubmit(event: Event) {
 		event.preventDefault();
-		postLipidos(data, 'lipidos');
+		delete data.pacienteNombre;
+		postLipidos(data, 'lipidos', completionPercentage);
 	}
 </script>
 
@@ -132,11 +178,30 @@
 			>
 				<h2 class="text-2xl">Lipidos</h2>
 			</div>
-			<div class="md:inline md:ml-4">
-				<button on:click={openModal} class="btn space-x-4 variant-soft hover:variant-soft-primary">
-					<i class="fa-solid fa-magnifying-glass text-sm"></i>
-					<small class="hidden md:inline-block">Buscar Pacientes</small>
-				</button>
+
+			<!-- Nombre del paciente seleccionado: {nombrePaciente} -->
+			{#if nombrePaciente}
+				<div>
+					<h2 class="text-xl font-thin text-gray-500">{nombrePaciente}</h2>
+				</div>
+			{:else}
+				<span class="text-gray-500">Seleccionar Paciente</span>
+			{/if}
+
+			<div class="w-fit flex flex-row items-center">
+				<div class="mx-2 md:inline md:ml-4">
+					<button
+						on:click={openModal}
+						class="btn space-x-4 variant-soft hover:variant-soft-primary"
+					>
+						<i class="fa-solid fa-magnifying-glass text-sm"></i>
+						<small class="hidden md:inline-block">Buscar Pacientes</small>
+					</button>
+				</div>
+				<!-- Barra de progreso -->
+				<ProgressRadial value={completionPercentage} width="w-20" class="text-primary-500-token">
+					{completionPercentage}%
+				</ProgressRadial>
 			</div>
 		</header>
 

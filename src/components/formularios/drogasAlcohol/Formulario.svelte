@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { FileButton, getModalStore } from '@skeletonlabs/skeleton';
+	import type { DrogasFormularios } from '../../../interface/Formularios';
+
+	import { FileButton, getModalStore, ProgressRadial } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 	import Buscador from '../../buscador/Buscador.svelte';
@@ -7,28 +9,48 @@
 	export let pacientes: any; // Propiedad para recibir los pacientes
 	let pacienteID: number = 0; // Valor inicial de idPaciente
 
+	let nombrePaciente: string = ''; // Valor inicial de nombrePaciente
+
 	// Variables para el estado de los checkboxes
 	let drogasChecked = false;
 	let alcoholChecked = false;
 	let otrosChecked = false;
 
-	interface Data {
-		id: number | null;
-		pacienteID: number;
-		alcohol: string;
-		alcoholDate: Date | null;
-		drogas: string;
-		drogasDate: Date | null;
-		otros: string;
-		otrosDate: string;
-		informo: boolean;
-		extra: string;
-		documento: null;
+	let completionPercentage: number = 0;
+
+	$: {
+		let totalFields = 0;
+		let filledFields = 0;
+
+		if (drogasChecked) {
+			totalFields += 2;
+			if (data.drogas) filledFields++;
+			if (data.drogasDate) filledFields++;
+		}
+		
+		if (alcoholChecked) {
+			totalFields += 2;
+			if (data.alcohol) filledFields++;
+			if (data.alcoholDate) filledFields++;
+		}
+
+		if (otrosChecked) {
+			totalFields += 2;
+			if (data.otros) filledFields++;
+			if (data.otrosDate) filledFields++;
+		}
+
+		if (!data.informo)
+			totalFields++;
+		
+		// Calcular el porcentaje
+		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
 	}
 
-	let data: Data = {
+	let data: DrogasFormularios = {
 		id: null,
 		pacienteID: 0,
+		pacienteNombre: { firstName: '', lastName: '' },
 		alcohol: '',
 		alcoholDate: null,
 		drogas: '',
@@ -52,7 +74,7 @@
 		response: (r) => {
 			// console.log('response:', r);
 			pacienteID = r;
-			console.log(pacienteID);
+			// console.log(pacienteID);
 			// Actualizar idPaciente con la respuesta del modal
 			getDrogas(pacienteID, 'drogas');
 		}
@@ -76,6 +98,7 @@
 				data = {
 					id: null,
 					pacienteID: pacienteID,
+					pacienteNombre: { firstName: '', lastName: '' },
 					alcohol: '',
 					alcoholDate: null,
 					drogas: '',
@@ -86,12 +109,20 @@
 					documento: null,
 					informo: false
 				};
+				nombrePaciente = errorData.pacienteNombre;
+
 				return null;
 			}
 
 			data = await response.json();
-			console.log(data);
+			// console.log(data);
 			// si data es null, agregar a data el id del paciente de la variable idPaciente
+			nombrePaciente = data.pacienteNombre.firstName + ' ' + data.pacienteNombre.lastName;
+
+			//actualizar el estado de los checkboxes
+			drogasChecked = data.drogas ? true : false;
+			alcoholChecked = data.alcohol ? true : false;
+			otrosChecked = data.otros ? true : false;
 
 			return data;
 		} catch (error) {
@@ -101,14 +132,14 @@
 	}
 
 	// funcion para hacer el POST de los datos de manera asincrona
-	async function postDrogas(data: Data, tableName: string) {
+	async function postDrogas(data: DrogasFormularios, tableName: string, porcentaje: number) {
 		try {
 			const response = await fetch('/api/formularios/post', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ data, tableName })
+				body: JSON.stringify({ data, tableName, porcentaje })
 			});
 
 			if (!response.ok) {
@@ -121,6 +152,7 @@
 			const result = await response.json();
 			alert(result.info);
 			//Redurecuibar a la pagina del formulario
+			window.location.reload();
 			return result;
 		} catch (error) {
 			console.error('Error:', error);
@@ -135,7 +167,8 @@
 	function handleSubmit(event: Event) {
 		event.preventDefault();
 		// console.log(data);
-		postDrogas(data, 'drogas');
+		delete data.pacienteNombre;
+		postDrogas(data, 'drogas', completionPercentage);
 	}
 </script>
 
@@ -152,11 +185,29 @@
 			>
 				<h2 class="text-2xl">Drogas / Alcohol</h2>
 			</div>
-			<div class="md:inline md:ml-4">
-				<button on:click={openModal} class="btn space-x-4 variant-soft hover:variant-soft-primary">
-					<i class="fa-solid fa-magnifying-glass text-sm"></i>
-					<small class="hidden md:inline-block">Buscar Pacientes</small>
-				</button>
+			<!-- Nombre del paciente seleccionado: {nombrePaciente} -->
+			{#if nombrePaciente}
+				<div>
+					<h2 class="text-xl font-thin text-gray-500">{nombrePaciente}</h2>
+				</div>
+			{:else}
+				<span class="text-gray-500">Seleccionar Paciente</span>
+			{/if}
+
+			<div class="w-fit flex flex-row items-center">
+				<div class="mx-2 md:inline md:ml-4">
+					<button
+						on:click={openModal}
+						class="btn space-x-4 variant-soft hover:variant-soft-primary"
+					>
+						<i class="fa-solid fa-magnifying-glass text-sm"></i>
+						<small class="hidden md:inline-block">Buscar Pacientes</small>
+					</button>
+				</div>
+				<!-- Barra de progreso -->
+				<ProgressRadial value={completionPercentage} width="w-20" class="text-primary-500-token">
+					{completionPercentage}%
+				</ProgressRadial>
 			</div>
 		</header>
 

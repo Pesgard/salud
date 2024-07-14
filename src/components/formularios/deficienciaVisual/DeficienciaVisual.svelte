@@ -1,28 +1,44 @@
 <script lang="ts">
-	import { FileButton, getModalStore } from '@skeletonlabs/skeleton';
+	import { FileButton, getModalStore, ProgressRadial } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 	import Buscador from '../../buscador/Buscador.svelte';
+	import type { DeficienciVisualFormulario } from '../../../interface/Formularios';
 	export let pacientes: any; // Propiedad para recibir los pacientes
 	let pacienteID: number = 0; // Valor inicial de idPaciente
+
+	let pacienteNombre: string = ''; //variable para el nombre del paciente
 
 	//variables de los checks
 	let examenVistaCheck = false;
 	let examenAuditivoCheck = false;
 
-	interface Data {
-		id: number | null;
-		pacienteID: number;
-		vista: string;
-		vistaDate: Date | null;
-		auditivo: string;
-		auditivoDate: Date | null;
-		extra: string;
-		documento: null;
+	let completionPercentage: number = 0;
+
+	//funcion para el conteo de campos llenos
+	$: {
+		let totalFields = 0;
+		let filledFields = 0;
+
+		if (examenVistaCheck) {
+			totalFields += 2;
+			if (data.vista) filledFields++;
+			if (data.vistaDate) filledFields++;
+		}
+
+		if (examenAuditivoCheck) {
+			totalFields += 2;
+			if (data.auditivo) filledFields++;
+			if (data.auditivoDate) filledFields++;
+		}
+
+		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
 	}
-	let data: Data = {
+
+	let data: DeficienciVisualFormulario = {
 		id: null,
 		pacienteID: 0,
+		pacienteNombre: { firstName: '', lastName: '' },
 		vista: '',
 		vistaDate: null,
 		auditivo: '',
@@ -58,6 +74,7 @@
 				data = {
 					id: null,
 					pacienteID: pacienteID,
+					pacienteNombre: { firstName: '', lastName: '' },
 					vista: '',
 					vistaDate: null,
 					auditivo: '',
@@ -65,23 +82,34 @@
 					extra: '',
 					documento: null
 				};
+				pacienteNombre = errorData.pacienteNombre;
 				return null;
 			}
 			data = await response.json();
+
+			examenVistaCheck = data.vista !== '' || data.vistaDate !== null;
+			examenAuditivoCheck = data.auditivo !== '' || data.auditivoDate !== null;
+
+			pacienteNombre = data.pacienteNombre.firstName + ' ' + data.pacienteNombre.lastName;
+
 			return data;
 		} catch (error) {
 			console.error('Error:', error);
 			return null;
 		}
 	}
-	async function postDeficienciaVisual(data: Data, tableName: string) {
+	async function postDeficienciaVisual(
+		data: DeficienciVisualFormulario,
+		tableName: string,
+		porcentaje: number
+	) {
 		try {
 			const response = await fetch('/api/formularios/post', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ data, tableName })
+				body: JSON.stringify({ data, tableName, porcentaje })
 			});
 			if (!response.ok) {
 				const errorData = await response.json();
@@ -89,6 +117,11 @@
 				return null;
 			}
 			const responseData = await response.json();
+
+			alert(responseData.info);
+			//Redurecuibar a la pagina del formulario
+			window.location.reload();
+
 			return responseData;
 		} catch (error) {
 			console.error('Error:', error);
@@ -101,7 +134,9 @@
 	//funcion para el envio de datos de formulario
 	function handleSubmit(event: Event) {
 		event.preventDefault();
-		postDeficienciaVisual(data, 'deficienciaVisual');
+
+		delete data.pacienteNombre;
+		postDeficienciaVisual(data, 'deficienciaVisual', completionPercentage);
 	}
 </script>
 
@@ -118,11 +153,28 @@
 			>
 				<h2 class="text-2xl">Deficiencia Visual</h2>
 			</div>
-			<div class="md:inline md:ml-4">
-				<button on:click={openModal} class="btn space-x-4 variant-soft hover:variant-soft-primary">
-					<i class="fa-solid fa-magnifying-glass text-sm"></i>
-					<small class="hidden md:inline-block">Buscar Pacientes</small>
-				</button>
+			{#if pacienteNombre}
+				<div>
+					<h2 class="text-xl font-thin text-gray-500">{pacienteNombre}</h2>
+				</div>
+			{:else}
+				<span class="text-gray-500">Seleccionar Paciente</span>
+			{/if}
+
+			<div class="w-fit flex flex-row items-center">
+				<div class="mx-2 md:inline md:ml-4">
+					<button
+						on:click={openModal}
+						class="btn space-x-4 variant-soft hover:variant-soft-primary"
+					>
+						<i class="fa-solid fa-magnifying-glass text-sm"></i>
+						<small class="hidden md:inline-block">Buscar Pacientes</small>
+					</button>
+				</div>
+				<!-- Barra de progreso -->
+				<ProgressRadial value={completionPercentage} width="w-20" class="text-primary-500-token">
+					{completionPercentage}%
+				</ProgressRadial>
 			</div>
 		</header>
 

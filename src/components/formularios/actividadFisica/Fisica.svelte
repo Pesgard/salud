@@ -1,9 +1,10 @@
 <script lang="ts">
 	import '@fortawesome/fontawesome-free/css/all.min.css';
-	import { FileButton, getModalStore } from '@skeletonlabs/skeleton';
+	import { FileButton, getModalStore, ProgressRadial } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 	import Buscador from '../../buscador/Buscador.svelte';
+	import type { FisicaFormulario } from '../../../interface/Formularios';
 
 	// recibir valores de pacientes
 	export let pacientes: any;
@@ -11,29 +12,41 @@
 	// valor inicial de idPaciente
 	let pacienteID: number = 0;
 
+	let nombrePaciente: string = '';
+	let completionPercentage: number = 0;
+
 	// Variables para el estado de los checkboxes
 	let deportesChecked = false;
 	let otrosChecked = false;
 
-	// interfaz de datos
-	interface Data {
-		//Estructura de la tabla de supabase
-		id: number | null;
-		pacienteID: number;
-		deporte: Date | null;
-		deporteInicio: Date | null;
-		deporteFinal: Date | null;
-		otros: Date | null;
-		otrosInicio: Date | null;
-		otrosFinal: Date | null;
-		extra: string;
-		documento: null;
+	$: {
+		let totalFields = 0;
+		let filledFields = 0;
+
+		// Calcular totalFields y filledFields basado en el estado de los checkboxes y la presencia de datos
+		if (deportesChecked) {
+			totalFields += 3;
+			if (data.deporte) filledFields++;
+			if (data.deporteInicio) filledFields++;
+			if (data.deporteFinal) filledFields++;
+		}
+
+		if (otrosChecked) {
+			totalFields += 3;
+			if (data.otros) filledFields++;
+			if (data.otrosInicio) filledFields++;
+			if (data.otrosFinal) filledFields++;
+		}
+
+		// calcular el porcentaje
+		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
 	}
 
 	// valores iniciales de los datos
-	let data: Data = {
+	let data: FisicaFormulario = {
 		id: null,
 		pacienteID: 0,
+		pacienteNombre: { firstName: '', lastName: '' },
 		deporte: null,
 		deporteInicio: null,
 		deporteFinal: null,
@@ -81,6 +94,7 @@
 			// Modificacion de data
 			data = {
 				id: null,
+				pacienteNombre: { firstName: '', lastName: '' },
 				pacienteID: pacienteID,
 				deporte: null,
 				deporteInicio: null,
@@ -91,28 +105,39 @@
 				extra: '',
 				documento: null
 			};
+			nombrePaciente = errorData.pacienteNombre;
 			return null;
 		}
 
 		// Si el fetching es exitoso
 		data = await response.json();
+
+		// Actualizar el estado de los checkboxes basado en la presencia de datos
+		deportesChecked =
+			data.deporte !== null || data.deporteInicio !== null || data.deporteFinal !== null;
+		otrosChecked = data.otros !== null || data.otrosInicio !== null || data.otrosFinal !== null;
+
+		// darle el nombre al paciente
+		nombrePaciente = data.pacienteNombre.firstName + ' ' + data.pacienteNombre.lastName;
+
 		return data;
 	}
 
 	//Funcion para enviar la informacion del formulario
-	async function sendFormulario(data: Data, tableName: string) {
+	async function sendFormulario(data: FisicaFormulario, tableName: string, porcentaje: number) {
 		const response = await fetch('/api/formularios/post', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({ data, tableName })
+			body: JSON.stringify({ data, tableName, porcentaje })
 		});
 
 		// Si el fetching da error
 		if (!response.ok) {
 			const errorData = await response.json();
 			console.error('Error', errorData);
+
 			return null;
 		}
 
@@ -132,7 +157,9 @@
 	// Funcion para enviar el formulario
 	function handleSubmit(event: Event) {
 		event.preventDefault();
-		sendFormulario(data, 'actividadFisica');
+
+		delete data.pacienteNombre;
+		sendFormulario(data, 'actividadFisica', completionPercentage);
 	}
 </script>
 
@@ -149,11 +176,29 @@
 			>
 				<h2 class="text-2xl">Actividad Fisica</h2>
 			</div>
-			<div class="md:inline md:ml-4">
-				<button on:click={openModal} class="btn space-x-4 variant-soft hover:variant-soft-primary">
-					<i class="fa-solid fa-magnifying-glass text-sm"></i>
-					<small class="hidden md:inline-block">Buscar Pacientes</small>
-				</button>
+			<!-- Nombre del paciente seleccionado: {nombrePaciente} -->
+			{#if nombrePaciente}
+				<div>
+					<h2 class="text-xl font-thin text-gray-500">{nombrePaciente}</h2>
+				</div>
+			{:else}
+				<span class="text-gray-500">Seleccionar Paciente</span>
+			{/if}
+
+			<div class="w-fit flex flex-row items-center">
+				<div class="mx-2 md:inline md:ml-4">
+					<button
+						on:click={openModal}
+						class="btn space-x-4 variant-soft hover:variant-soft-primary"
+					>
+						<i class="fa-solid fa-magnifying-glass text-sm"></i>
+						<small class="hidden md:inline-block">Buscar Pacientes</small>
+					</button>
+				</div>
+				<!-- Barra de progreso -->
+				<ProgressRadial value={completionPercentage} width="w-20" class="text-primary-500-token">
+					{completionPercentage}%
+				</ProgressRadial>
 			</div>
 		</header>
 

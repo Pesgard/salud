@@ -1,11 +1,20 @@
 <script lang="ts">
-	import { FileButton, RadioGroup, RadioItem, getModalStore } from '@skeletonlabs/skeleton';
+	import {
+		FileButton,
+		RadioGroup,
+		RadioItem,
+		getModalStore,
+		ProgressRadial
+	} from '@skeletonlabs/skeleton';
 	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 	import Buscador from '../../buscador/Buscador.svelte';
+	import type { DiabetesFormulario } from '../../../interface/Formularios';
+
 	export let pacientes: any; // Propiedad para recibir los pacientes
 	let value = ''; // Valor inicial de value
 	let pacienteID: number = 0; // Valor inicial de idPaciente
+	let nombrePaciente: string = ''; // Valor inicial de nombrePaciente
 
 	// Checks de inputs
 	let checkFecha = false;
@@ -13,18 +22,46 @@
 	let checkFarmacos = false;
 	let checkObservaciones = false;
 
-	interface Data {
-		id: number | null;
-		pacienteID: number;
-		date: Date | null;
-		tipoPaciente: string;
-		farmacos: string;
-		observaciones: string;
-		documento: null;
+	let completionPercentage: number = 0; // Porcentaje de completitud del formulario
+
+	$: {
+		let totalFields = 0;
+		let filledFields = 0;
+
+		// Calcular totalFields y filledFields basado en la presencia de datos
+		if (data.date) filledFields++;
+		totalFields++;
+		if (data.tipoPaciente) filledFields++;
+		totalFields++;
+		if (data.farmacos) filledFields++;
+		totalFields++;
+		if (data.observaciones) filledFields++;
+		totalFields++;
+
+		// Calcular el porcentaje de completitud
+		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
 	}
-	let data: Data = {
+
+	function updateCompletionPercentage() {
+		let totalFields = 0;
+		let filledFields = 0;
+
+		if (data.date) filledFields++;
+		totalFields++;
+		if (data.tipoPaciente) filledFields++;
+		totalFields++;
+		if (data.farmacos) filledFields++;
+		totalFields++;
+		if (data.observaciones) filledFields++;
+		totalFields++;
+
+		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
+	}
+
+	let data: DiabetesFormulario = {
 		id: null,
 		pacienteID: 0,
+		pacienteNombre: { firstName: '', lastName: '' },
 		date: null,
 		tipoPaciente: value,
 		farmacos: '',
@@ -66,6 +103,7 @@
 				console.error('Error fetching data:', errorData.error);
 				data = {
 					id: null,
+					pacienteNombre: { firstName: '', lastName: '' },
 					pacienteID: pacienteID,
 					date: null,
 					tipoPaciente: '',
@@ -74,9 +112,11 @@
 					documento: null
 				};
 				value = '';
+				nombrePaciente = errorData.pacienteNombre;
 				return null;
 			}
 			data = await response.json();
+			nombrePaciente = data.pacienteNombre.firstName + ' ' + data.pacienteNombre.lastName;
 			value = data.tipoPaciente;
 			return data;
 		} catch (error) {
@@ -84,14 +124,14 @@
 			return null;
 		}
 	}
-	async function postDiabetes(data: Data, tableName: string) {
+	async function postDiabetes(data: DiabetesFormulario, tableName: string, porcentaje:number) {
 		try {
 			const response = await fetch('/api/formularios/post', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ data, tableName })
+				body: JSON.stringify({ data, tableName, porcentaje })
 			});
 			if (!response.ok) {
 				const errorData = await response.json();
@@ -99,6 +139,8 @@
 				return null;
 			}
 			const responseData = await response.json();
+			alert(responseData.info);
+			window.location.reload();
 			return responseData;
 		} catch (error) {
 			console.error('Error:', error);
@@ -111,8 +153,9 @@
 	//funcion para el envio de datos de formulario
 	function handleSubmit(event: Event) {
 		event.preventDefault();
-		data.tipoPaciente = value;
-		postDiabetes(data, 'diabetes');
+
+		delete data.pacienteNombre;
+		postDiabetes(data, 'diabetes', completionPercentage);
 	}
 </script>
 
@@ -129,11 +172,30 @@
 			>
 				<h2 class="text-2xl">Diabetes / Hipertension</h2>
 			</div>
-			<div class="md:inline md:ml-4">
-				<button on:click={openModal} class="btn space-x-4 variant-soft hover:variant-soft-primary">
-					<i class="fa-solid fa-magnifying-glass text-sm"></i>
-					<small class="hidden md:inline-block">Buscar Pacientes</small>
-				</button>
+
+			<!-- Nombre del paciente seleccionado: {nombrePaciente} -->
+			{#if nombrePaciente}
+				<div>
+					<h2 class="text-xl font-thin text-gray-500">{nombrePaciente}</h2>
+				</div>
+			{:else}
+				<span class="text-gray-500">Seleccionar Paciente</span>
+			{/if}
+
+			<div class="w-fit flex flex-row items-center">
+				<div class="mx-2 md:inline md:ml-4">
+					<button
+						on:click={openModal}
+						class="btn space-x-4 variant-soft hover:variant-soft-primary"
+					>
+						<i class="fa-solid fa-magnifying-glass text-sm"></i>
+						<small class="hidden md:inline-block">Buscar Pacientes</small>
+					</button>
+				</div>
+				<!-- Barra de progreso -->
+				<ProgressRadial value={completionPercentage} width="w-20" class="text-primary-500-token">
+					{completionPercentage}%
+				</ProgressRadial>
 			</div>
 		</header>
 
@@ -166,17 +228,23 @@
 						</p>
 						<!-- tipo Paciente -->
 						<RadioGroup>
-							<RadioItem bind:group={value} name="justify" value={'Sano'} disabled={!checkPaciente}
-								>Sano</RadioItem
-							>
 							<RadioItem
-								bind:group={value}
+								bind:group={data.tipoPaciente}
+								name="justify"
+								value={'Sano'}
+								disabled={!checkPaciente}
+								on:change={updateCompletionPercentage}>Sano</RadioItem
+							>
+
+							<RadioItem
+								bind:group={data.tipoPaciente}
 								name="justify"
 								value={'Hipertenso'}
+								on:change={updateCompletionPercentage}
 								disabled={!checkPaciente}>Hipertenso</RadioItem
 							>
 							<RadioItem
-								bind:group={value}
+								bind:group={data.tipoPaciente}
 								name="justify"
 								value={'Diabetico'}
 								disabled={!checkPaciente}>Diabetico</RadioItem
@@ -197,6 +265,7 @@
 							placeholder="Farmacos"
 							disabled={!checkFarmacos}
 							bind:value={data.farmacos}
+							on:input={updateCompletionPercentage}
 						/>
 					</div>
 					<hr />
@@ -213,6 +282,7 @@
 							placeholder="Observaciones"
 							disabled={!checkObservaciones}
 							bind:value={data.observaciones}
+							on:input={updateCompletionPercentage}
 						/>
 					</div>
 

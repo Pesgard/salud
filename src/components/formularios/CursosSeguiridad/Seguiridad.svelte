@@ -1,10 +1,59 @@
 <script lang="ts">
-	import { FileButton, getModalStore } from '@skeletonlabs/skeleton';
+	import { FileButton, getModalStore, ProgressRadial } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 	import Buscador from '../../buscador/Buscador.svelte';
+	import type { CursosSeguridadFormulario } from '../../../interface/Formularios';
 	export let pacientes: any; // Propiedad para recibir los pacientes
 	let pacienteID: number = 0; // Valor inicial de idPaciente
+
+	let nombrePaciente: string = '';
+	let completionPercentage: number = 0;
+
+	$: {
+		let totalFields = 0;
+		let filledFields = 0;
+
+		// Calcular totalFields y filledFields basado en el estado de los checkboxes y la presencia de datos
+		if (primerosAuxiliosChecked) {
+			totalFields += 2;
+			if (data.auxilios) filledFields++;
+			if (data.auxilios_rfc) filledFields++;
+		}
+		if (rcpChecked) {
+			totalFields += 2;
+			if (data.rcp) filledFields++;
+			if (data.rcp_rfc) filledFields++;
+		}
+		if (incendiosChecked) {
+			totalFields += 2;
+			if (data.incendios) filledFields++;
+			if (data.incendios_rfc) filledFields++;
+		}
+		if (espaciosConfinadosChecked) {
+			totalFields += 2;
+			if (data.confinados) filledFields++;
+			if (data.confinados_rfc) filledFields++;
+		}
+		if (otros1Checked) {
+			totalFields += 2;
+			if (data.otros1) filledFields++;
+			if (data.otros1_rfc) filledFields++;
+		}
+		if (otros2Checked) {
+			totalFields += 2;
+			if (data.otros2) filledFields++;
+			if (data.otros2_rfc) filledFields++;
+		}
+		if (otros3Checked) {
+			totalFields += 2;
+			if (data.otros3) filledFields++;
+			if (data.otros3_rfc) filledFields++;
+		}
+
+		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
+	}
+
 	// Variables para el estado de los checkboxes
 	let primerosAuxiliosChecked = false;
 	let rcpChecked = false;
@@ -13,29 +62,11 @@
 	let otros1Checked = false;
 	let otros2Checked = false;
 	let otros3Checked = false;
-	interface Data {
-		id: number | null;
-		pacienteID: number;
-		auxilios: Date | null;
-		auxilios_rfc: string;
-		rcp: Date | null;
-		rcp_rfc: string;
-		incendios: Date | null;
-		incendios_rfc: string;
-		confinados: Date | null;
-		confinados_rfc: string;
-		otros1: Date | null;
-		otros1_rfc: string;
-		otros2: Date | null;
-		otros2_rfc: string;
-		otros3: Date | null;
-		otros3_rfc: string;
-		extra: string;
-		documento: null;
-	}
-	let data: Data = {
+
+	let data: CursosSeguridadFormulario = {
 		id: null,
 		pacienteID: 0,
+		pacienteNombre: { firstName: '', lastName: '' },
 		auxilios: null,
 		auxilios_rfc: '',
 		rcp: null,
@@ -81,6 +112,7 @@
 				data = {
 					id: null,
 					pacienteID: pacienteID,
+					pacienteNombre: { firstName: '', lastName: '' },
 					auxilios: null,
 					auxilios_rfc: '',
 					rcp: null,
@@ -98,23 +130,42 @@
 					extra: '',
 					documento: null
 				};
+				nombrePaciente = errorData.pacienteNombre;
 				return null;
 			}
+
 			data = await response.json();
+
+			// actualizar el estado de los checks
+			primerosAuxiliosChecked = data.auxilios ? true : false;
+			rcpChecked = data.rcp ? true : false;
+			incendiosChecked = data.incendios ? true : false;
+			espaciosConfinadosChecked = data.confinados ? true : false;
+			otros1Checked = data.otros1 ? true : false;
+			otros2Checked = data.otros2 ? true : false;
+			otros3Checked = data.otros3 ? true : false;
+
+			// actualizar el nombre en el header del formulario
+			nombrePaciente = data.pacienteNombre.firstName + ' ' + data.pacienteNombre.lastName;
+
 			return data;
 		} catch (error) {
 			console.error('Error:', error);
 			return null;
 		}
 	}
-	async function postSeguridad(data: Data, tableName: string) {
+	async function postSeguridad(
+		data: CursosSeguridadFormulario,
+		tableName: string,
+		porcentaje: number
+	) {
 		try {
 			const response = await fetch('/api/formularios/post', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ data, tableName })
+				body: JSON.stringify({ data, tableName, porcentaje })
 			});
 			if (!response.ok) {
 				const errorData = await response.json();
@@ -122,6 +173,10 @@
 				return null;
 			}
 			const responseData = await response.json();
+
+			// mostrar la noticion de cambios
+			alert(responseData.info)
+			window.location.reload()
 			return responseData;
 		} catch (error) {
 			console.error('Error:', error);
@@ -133,9 +188,11 @@
 		modalStore.trigger(modal);
 	}
 	//funcion para el envio de datos de formulario
-	function handleSubmit(event: Event){
+	function handleSubmit(event: Event) {
 		event.preventDefault();
-		postSeguridad(data, "seguridad")
+
+		delete data.pacienteNombre;
+		postSeguridad(data, 'seguridad', completionPercentage);
 	}
 </script>
 
@@ -152,11 +209,29 @@
 			>
 				<h2 class="text-2xl">Cursos de Seguiridad</h2>
 			</div>
-			<div class="md:inline md:ml-4">
-				<button on:click={openModal} class="btn space-x-4 variant-soft hover:variant-soft-primary">
-					<i class="fa-solid fa-magnifying-glass text-sm"></i>
-					<small class="hidden md:inline-block">Buscar Pacientes</small>
-				</button>
+			<!-- Nombre del paciente seleccionado: {nombrePaciente} -->
+			{#if nombrePaciente}
+				<div>
+					<h2 class="text-xl font-thin text-gray-500">{nombrePaciente}</h2>
+				</div>
+			{:else}
+				<span class="text-gray-500">Seleccionar Paciente</span>
+			{/if}
+
+			<div class="w-fit flex flex-row items-center">
+				<div class="mx-2 md:inline md:ml-4">
+					<button
+						on:click={openModal}
+						class="btn space-x-4 variant-soft hover:variant-soft-primary"
+					>
+						<i class="fa-solid fa-magnifying-glass text-sm"></i>
+						<small class="hidden md:inline-block">Buscar Pacientes</small>
+					</button>
+				</div>
+				<!-- Barra de progreso -->
+				<ProgressRadial value={completionPercentage} width="w-20" class="text-primary-500-token">
+					{completionPercentage}%
+				</ProgressRadial>
 			</div>
 		</header>
 

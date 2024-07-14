@@ -1,14 +1,5 @@
 import { type RequestHandler } from '@sveltejs/kit';
 
-// Función para calcular el porcentaje de campos no vacíos en un objeto
-function calculateFilledPercentage(obj: Record<string, unknown>): number {
-	const keysWithoutDocumento = Object.keys(obj).filter((key) => key !== 'documento');
-	const totalFields = keysWithoutDocumento.length;
-	const filledFields = keysWithoutDocumento.filter(
-		(key) => obj[key] !== null && obj[key] !== ''
-	).length;
-	return (filledFields / totalFields) * 100;
-}
 // Api para guardar los datos de un formulario en la tabla correspondiente de manera dinamica segun la tabla que se envie en el body
 export const POST: RequestHandler = async ({
 	request,
@@ -16,9 +7,9 @@ export const POST: RequestHandler = async ({
 }): Promise<Response> => {
 	const requestBody = await request.json();
 	let newId;
-
-	console.log(requestBody.data);
-
+	// console.log(requestBody.data);
+	// console.log(requestBody.porcentaje);
+	
 	// establecer los valores vacios como nulos
 	requestBody.data = setEmptyValuesToNull(requestBody.data);
 
@@ -52,7 +43,7 @@ export const POST: RequestHandler = async ({
 		}
 
 		// Calcular el porcentaje de campos no vacíos
-		const filledPercentage = calculateFilledPercentage(requestBody.data);
+		const filledPercentage = requestBody.porcentaje;
 		console.log(filledPercentage);
 
 		// Insertar el porcentaje en la tabla seguimientos junto con el id del paciente
@@ -71,7 +62,7 @@ export const POST: RequestHandler = async ({
 		}
 
 		if (requestBody.tableName === 'diabetes') {
-			const { error: diabetesError } = await supabase
+			await supabase
 				.from('pacientes')
 				.update({
 					tipoPaciente: requestBody.data.tipoPaciente
@@ -100,8 +91,8 @@ export const POST: RequestHandler = async ({
 		}
 
 		// Calcular el porcentaje de campos no vacíos
-		const filledPercentage = calculateFilledPercentage(requestBody.data);
-		console.log(filledPercentage);
+		const filledPercentage = requestBody.porcentaje;
+		// console.log(filledPercentage);
 
 		// Actualizar el porcentaje en la tabla seguimientos
 		const { error: seguimientosError } = await supabase
@@ -117,7 +108,7 @@ export const POST: RequestHandler = async ({
 		}
 
 		if (requestBody.tableName === 'diabetes') {
-			const { error: diabetesError } = await supabase
+			await supabase
 				.from('pacientes')
 				.update({
 					tipoPaciente: requestBody.data.tipoPaciente

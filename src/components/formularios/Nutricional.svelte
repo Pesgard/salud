@@ -1,28 +1,65 @@
 <script lang="ts">
-	import { FileButton, getModalStore } from '@skeletonlabs/skeleton';
+	import { FileButton, getModalStore, ProgressRadial } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 	import Buscador from '../buscador/Buscador.svelte';
+	import type { NutricionFormulario } from '../../interface/Formularios';
+
 	export let pacientes: any; // Propiedad para recibir los pacientes
-	let pacienteID: number = 0; // Valor inicial de idPaciente
+	let pacienteID: number = 0; // Valor inicial de pacienteID
 
-	let enableFormulario: boolean = false;
+	//Variable para mostrar nombre del paciente
+	let nombrePaciente: string = '';
 
-	interface Data {
-		id: number | null;
-		pacienteID: number;
-		date: Date | null;
-		peso: number;
-		imc: number;
-		resultado: number;
-		txNutricion: string;
-		extra: string;
-		documento: string;
+	//variable para activar y desactivar el formulario
+	let formActive: boolean = false;
+
+	$: {
+		let totalFields = 0;
+		let filledFields = 0;
+
+		// Calcular totalFields y filledFields basado en la presencia de datos
+		if (data.date) filledFields++;
+		totalFields++;
+		if (data.peso) filledFields++;
+		totalFields++;
+		if (data.imc) filledFields++;
+		totalFields++;
+		if (data.resultado) filledFields++;
+		totalFields++;
+		if (data.txNutricion) filledFields++;
+		totalFields++;
+		if (data.extra) filledFields++;
+		totalFields++;
+
+		// Calcular el porcentaje de completitud
+		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
 	}
 
-	let data: Data = {
+	function updateCompletionPercentage() {
+		let totalFields = 0;
+		let filledFields = 0;
+
+		if (data.date) filledFields++;
+		totalFields++;
+		if (data.peso) filledFields++;
+		totalFields++;
+		if (data.imc) filledFields++;
+		totalFields++;
+		if (data.resultado) filledFields++;
+		totalFields++;
+		if (data.txNutricion) filledFields++;
+		totalFields++;
+		if (data.extra) filledFields++;
+		totalFields++;
+
+		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
+	}
+
+	let data: NutricionFormulario = {
 		id: null,
 		pacienteID: 0,
+		pacienteNombre: { firstName: '', lastName: '' },
 		date: null,
 		peso: 0,
 		imc: 0,
@@ -37,14 +74,22 @@
 		ref: Buscador,
 		props: { pacientes }
 	};
+
 	const modal: ModalSettings = {
 		type: 'component',
 		component: modalComponent,
 		response: (r) => {
 			pacienteID = r;
+			if (pacienteID) {
+				formActive = true;
+			} else {
+				formActive = false;
+			}
 			getNutricional(pacienteID, 'nutricional');
 		}
 	};
+
+	//funcion para hacer el fetching de datos de manera asincrona
 	async function getNutricional(pacienteID: number, tableName: string) {
 		try {
 			const response = await fetch('/api/formularios/get', {
@@ -54,11 +99,12 @@
 				},
 				body: JSON.stringify({ pacienteID, tableName })
 			});
+
 			if (!response.ok) {
 				const errorData = await response.json();
-				console.error('Error fetching data:', errorData.error);
 				data = {
 					id: null,
+					pacienteNombre: { firstName: '', lastName: '' },
 					pacienteID: pacienteID,
 					date: null,
 					peso: 0,
@@ -68,33 +114,44 @@
 					extra: '',
 					documento: ''
 				};
-				enableFormulario = true;
+				// console.log(errorData.pacienteNombre);
+				nombrePaciente = errorData.pacienteNombre;
 				return null;
 			}
+
 			data = await response.json();
-			enableFormulario = true;
+
+			// Actualizar el estado de los checkbox basado en la presencia de datos
+
+			nombrePaciente = data.pacienteNombre.firstName + ' ' + data.pacienteNombre.lastName;
 			return data;
 		} catch (error) {
 			console.error('Error:', error);
 			return null;
 		}
 	}
-	async function postNutricional(data: Data, tableName: string) {
+
+	// funcion para hacer el POST de los datos de manera asincrona
+	async function postNutricional(data: NutricionFormulario, tableName: string, porcentaje: number) {
 		try {
 			const response = await fetch('/api/formularios/post', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ data, tableName })
+				body: JSON.stringify({ data, tableName, porcentaje })
 			});
+
 			if (!response.ok) {
 				const errorData = await response.json();
-				console.error('Error posting data:', errorData.error);
+				console.error('Error fetching data:', errorData.error);
 				return null;
 			}
-			const responseData = await response.json();
-			return responseData;
+
+			const result = await response.json();
+			alert(result.info);
+			window.location.href = '/dashboard/home/estadoNutricional';
+			return result;
 		} catch (error) {
 			console.error('Error:', error);
 			return null;
@@ -104,14 +161,18 @@
 	function openModal() {
 		modalStore.trigger(modal);
 	}
-	//funcion para el envio de datos de formulario
+
 	function handleSubmit(event: Event) {
 		event.preventDefault();
-		postNutricional(data, 'nutricional');
+		// console.log(data);
+		delete data.pacienteNombre;
+		postNutricional(data, 'nutricional', completionPercentage);
 	}
+
+	let completionPercentage = 0;
 </script>
 
-<div id="panels" class="space-y-10">
+<div class="space-y-10">
 	<div
 		class="previewer shadow-2xl shadow-surface-500/10 dark:shadow-black/10 rounded-container-token overflow-hidden"
 	>
@@ -124,16 +185,35 @@
 			>
 				<h2 class="text-2xl">Estado Nutricional</h2>
 			</div>
-			<div class="md:inline md:ml-4">
-				<button on:click={openModal} class="btn space-x-4 variant-soft hover:variant-soft-primary">
-					<i class="fa-solid fa-magnifying-glass text-sm"></i>
-					<small class="hidden md:inline-block">Buscar Pacientes</small>
-				</button>
+
+			<!-- Nombre del paciente seleccionado: {nombrePaciente} -->
+			{#if nombrePaciente}
+				<div>
+					<h2 class="text-xl font-thin text-gray-500">{nombrePaciente}</h2>
+				</div>
+			{:else}
+				<span class="text-gray-500">Seleccionar Paciente</span>
+			{/if}
+
+			<div class="w-fit flex flex-row items-center">
+				<div class="mx-2 md:inline md:ml-4">
+					<button
+						on:click={openModal}
+						class="btn space-x-4 variant-soft hover:variant-soft-primary"
+					>
+						<i class="fa-solid fa-magnifying-glass text-sm"></i>
+						<small class="hidden md:inline-block">Buscar Pacientes</small>
+					</button>
+				</div>
+				<!-- Barra de progreso -->
+				<ProgressRadial value={completionPercentage} width="w-20" class="text-primary-500-token">
+					{completionPercentage}%
+				</ProgressRadial>
 			</div>
 		</header>
 
 		<!-- Formulario -->
-		<div class="previewer-viewport p-4 md:p-10 space-y-4 bg-transparent">
+		<form class="previewer-viewport p-4 md:p-10 space-y-4 bg-transparent">
 			<div
 				class="previewer-preview flex justify-center items-center mx-auto transition-[width] duration-200 w-full"
 			>
@@ -143,7 +223,13 @@
 						<p class="flex items-center space-x-2">
 							<span class="label">Fecha</span>
 						</p>
-						<input class="input" type="date" disabled={!enableFormulario} bind:value={data.date} />
+						<input
+							class="input"
+							type="date"
+							bind:value={data.date}
+							on:input={updateCompletionPercentage}
+							disabled={!formActive}
+						/>
 					</div>
 					<hr />
 
@@ -154,11 +240,11 @@
 						</p>
 						<input
 							class="input"
-							title="Peso"
 							type="number"
 							placeholder="Kg"
-							disabled={!enableFormulario}
 							bind:value={data.peso}
+							on:input={updateCompletionPercentage}
+							disabled={!formActive}
 						/>
 					</div>
 					<hr />
@@ -170,82 +256,93 @@
 						</p>
 						<input
 							class="input"
-							title="Detalles"
 							type="number"
 							placeholder="IMC"
-							disabled={!enableFormulario}
 							bind:value={data.imc}
+							on:input={updateCompletionPercentage}
+							disabled={!formActive}
 						/>
 					</div>
 					<hr />
 
-					<!-- Seccion Resultado -->
+					<!-- Resultado -->
 					<div class="grid grid-cols-3 gap-4 pt-2 items-center justify-center">
 						<p class="flex items-center space-x-2">
 							<span class="label">Resultado</span>
 						</p>
 						<input
 							class="input"
-							title="Resultado"
-							type="number"
+							type="text"
 							placeholder="Resultado"
-							disabled={!enableFormulario}
 							bind:value={data.resultado}
+							on:input={updateCompletionPercentage}
+							disabled={!formActive}
 						/>
 					</div>
 					<hr />
 
-					<!-- Seccion TX - Nutricion -->
+					<!-- Tx Nutricion -->
 					<div class="grid grid-cols-3 gap-4 pt-2 items-center justify-center">
 						<p class="flex items-center space-x-2">
-							<span class="label">TX Nutricion</span>
+							<span class="label">Tx Nutricion</span>
 						</p>
 						<input
 							class="input"
-							title="txNutricion"
 							type="text"
-							placeholder="TX Nutricion"
-							disabled={!enableFormulario}
+							placeholder="Tx Nutricion"
 							bind:value={data.txNutricion}
+							on:input={updateCompletionPercentage}
+							disabled={!formActive}
 						/>
 					</div>
 					<hr />
 
-					<!--Seccion Observaciones-->
-					<label class="label">
-						<span>Observaciones Extra</span>
+					<!-- Extra -->
+					<div class="grid grid-cols-3 gap-4 pt-2 items-center justify-center">
+						<p class="flex items-center space-x-2">
+							<span class="label">Extra</span>
+						</p>
 						<input
 							class="input"
 							type="text"
-							placeholder="Observaciones"
-							disabled={!enableFormulario}
+							placeholder="Extra"
 							bind:value={data.extra}
+							on:input={updateCompletionPercentage}
+							disabled={!formActive}
 						/>
-					</label>
+					</div>
+					<hr />
 
 					<!-- Subir Archivos -->
-					<hr />
-
 					<p>Documentos</p>
 					<div class="btn-group variant-ringed w-full">
-						<FileButton name="files" button="" width="w-full"
-							>Subir
-							<i class="fa-solid fa-file-arrow-up ml-2"></i>
+						<FileButton name="files" button="" width="w-full">
+							Subir
+							<input
+								class="hidden"
+								type="file"
+								accept="application/pdf"
+								bind:value={data.documento}
+								disabled={!formActive}
+							/>
 						</FileButton>
-						<button class="w-full btn variant-soft"
-							>Descargar
-							<i class="fa-solid fa-file-arrow-down ml-2"></i>
-						</button>
 					</div>
-
-					<!-- Botones de Formularios -->
-					<hr />
-					<div class="flex flex-row w-full justify-between">
-						<button type="button" class="btn variant-ringed">Borrar</button>
-						<button on:click={handleSubmit} type="button" class="btn variant-soft">Enviar</button>
-					</div>
-				</div>	
+				</div>
 			</div>
-		</div>
+			<!-- Botones de enviar y cancelar -->
+			<div class="flex flex-row items-center justify-center space-x-4">
+				<button
+					class="btn space-x-4 variant-filled hover:variant-filled-secondary"
+					on:click={handleSubmit}
+				>
+					<i class="fa-solid fa-check text-sm"></i>
+					<small class="hidden md:inline-block">Enviar</small>
+				</button>
+				<button class="btn space-x-4 variant-filled hover:variant-filled-secondary">
+					<i class="fa-solid fa-xmark text-sm"></i>
+					<small class="hidden md:inline-block">Cancelar</small>
+				</button>
+			</div>
+		</form>
 	</div>
 </div>

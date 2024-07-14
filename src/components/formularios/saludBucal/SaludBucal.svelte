@@ -1,26 +1,37 @@
 <script lang="ts">
-	import { FileButton, getModalStore } from '@skeletonlabs/skeleton';
+	import { FileButton, getModalStore, ProgressRadial } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 	import Buscador from '../../buscador/Buscador.svelte';
+	import type { SaludBucalFormulario } from '../../../interface/Formularios';
 	export let pacientes: any; // Propiedad para recibir los pacientes
-	let pacienteID: number = 0; // Valor inicial de pacienteID
+	let pacienteID: number = 0; // Valor inicial de pacienteID\
+
+	let nombrePaciente: string = '';
 
 	let checkBucal: boolean = false;
 	let enableBucal: boolean = false;
 
-	interface Data {
-		id: number | null;
-		pacienteID: number;
-		revision: string;
-		revisionDate: Date | null;
-		documento: string;
-		observaciones: string;
+	let completionPercentage: number = 0;
+
+	$: {
+		let totalFields = 0;
+		let filledFields = 0;
+
+		if (checkBucal) {
+			totalFields += 2;
+			if (data.revision) filledFields++;
+			if (data.revisionDate) filledFields++;
+		}
+
+		completionPercentage = totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
 	}
 
-	let data: Data = {
+	// Objeto para almacenar los datos del formulario
+	let data: SaludBucalFormulario = {
 		id: null,
 		pacienteID: 0,
+		pacienteNombre: { firstName: '', lastName: '' },
 		revision: '',
 		revisionDate: null,
 		documento: '',
@@ -55,11 +66,13 @@
 				data = {
 					id: null,
 					pacienteID: pacienteID,
+					pacienteNombre: { firstName: '', lastName: '' },
 					revision: '',
 					revisionDate: null,
 					documento: '',
 					observaciones: ''
 				};
+				nombrePaciente = errorData.pacienteNombre;
 				enableBucal = true;
 				return null;
 			}
@@ -71,14 +84,14 @@
 			return null;
 		}
 	}
-	async function postBucal(data: Data, tableName: string) {
+	async function postBucal(data: SaludBucalFormulario, tableName: string, porcentaje: number) {
 		try {
 			const response = await fetch('/api/formularios/post', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ data, tableName })
+				body: JSON.stringify({ data, tableName, porcentaje })
 			});
 			if (!response.ok) {
 				const errorData = await response.json();
@@ -86,6 +99,11 @@
 				return null;
 			}
 			const responseData = await response.json();
+
+			// Mostrar mensaje de alerta
+			alert(responseData.info);
+			window.location.reload();
+
 			return responseData;
 		} catch (error) {
 			console.error('Error:', error);
@@ -99,7 +117,9 @@
 	//funcion para el envio de datos de formulario
 	function handleSubmit(event: Event) {
 		event.preventDefault();
-		postBucal(data, 'saludBucal');
+
+		delete data.pacienteNombre;
+		postBucal(data, 'saludBucal', completionPercentage);
 	}
 </script>
 
@@ -116,11 +136,29 @@
 			>
 				<h2 class="text-2xl">Salud Bucal</h2>
 			</div>
-			<div class="md:inline md:ml-4">
-				<button on:click={openModal} class="btn space-x-4 variant-soft hover:variant-soft-primary">
-					<i class="fa-solid fa-magnifying-glass text-sm"></i>
-					<small class="hidden md:inline-block">Buscar Pacientes</small>
-				</button>
+			<!-- Nombre del paciente seleccionado: {nombrePaciente} -->
+			{#if nombrePaciente}
+				<div>
+					<h2 class="text-xl font-thin text-gray-500">{nombrePaciente}</h2>
+				</div>
+			{:else}
+				<span class="text-gray-500">Seleccionar Paciente</span>
+			{/if}
+
+			<div class="w-fit flex flex-row items-center">
+				<div class="mx-2 md:inline md:ml-4">
+					<button
+						on:click={openModal}
+						class="btn space-x-4 variant-soft hover:variant-soft-primary"
+					>
+						<i class="fa-solid fa-magnifying-glass text-sm"></i>
+						<small class="hidden md:inline-block">Buscar Pacientes</small>
+					</button>
+				</div>
+				<!-- Barra de progreso -->
+				<ProgressRadial value={completionPercentage} width="w-20" class="text-primary-500-token">
+					{completionPercentage}%
+				</ProgressRadial>
 			</div>
 		</header>
 
@@ -149,7 +187,12 @@
 							disabled={!checkBucal}
 							bind:value={data.revision}
 						/>
-						<input class="input" type="date" disabled={!checkBucal} bind:value={data.revisionDate} />
+						<input
+							class="input"
+							type="date"
+							disabled={!checkBucal}
+							bind:value={data.revisionDate}
+						/>
 					</div>
 
 					<label class="label">

@@ -3,12 +3,53 @@
 	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 	import Buscador from '../../buscador/Buscador.svelte';
+	import type { BiologicosFormulario } from '../../../interface/Formularios';
 
 	export let pacientes: any; // Propiedad para recibir los pacientes
 	let pacienteID: number = 0; // Valor inicial de pacienteID
 
 	//Variable para mostrar nombre del paciente
 	let nombrePaciente: string = '';
+
+	$: {
+		let totalFields = 0;
+		let filledFields = 0;
+
+		// Calcular totalFields y filledFields basado en el estado de los checkboxes y la presencia de datos
+		if (tdChecked) {
+			totalFields += 2; // TD and dateTD
+			if (data.td) filledFields++;
+			if (data.dateTD) filledFields++;
+		}
+		if (srChecked) {
+			totalFields += 2; // SR and dateSR
+			if (data.sr) filledFields++;
+			if (data.dateSR) filledFields++;
+		}
+		if (influenzaChecked) {
+			totalFields += 2; // Influenza and dateInfluenza
+			if (data.influenza) filledFields++;
+			if (data.dateInfluenza) filledFields++;
+		}
+		if (cartillaChecked) {
+			totalFields += 2; // Cartilla and dateCartilla
+			if (data.cartilla) filledFields++;
+			if (data.dateCartilla) filledFields++;
+		}
+		if (drogasChecked) {
+			totalFields += 2; // Drogas and dateDrogas
+			if (data.drogas) filledFields++;
+			if (data.dateDrogas) filledFields++;
+		}
+		if (otrosChecked) {
+			totalFields += 2; // Otros and dateOtros
+			if (data.otros) filledFields++;
+			if (data.dateOtros) filledFields++;
+		}
+
+		// Calcular el porcentaje de completitud
+		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
+	}
 
 	// Variables para el estado de los checkboxes
 	let tdChecked = false;
@@ -18,30 +59,10 @@
 	let drogasChecked = false;
 	let otrosChecked = false;
 
-	interface Data {
-		id: number | null;
-		pacienteNombre: string;
-		pacienteID: any;
-		td: string;
-		dateTD: string;
-		sr: string;
-		dateSR: string;
-		influenza: string;
-		dateInfluenza: string;
-		cartilla: string;
-		dateCartilla: string;
-		drogas: string;
-		dateDrogas: string;
-		otros: string;
-		dateOtros: string;
-		extras: string;
-		documento: null;
-	}
-
-	let data: Data = {
+	let data: BiologicosFormulario = {
 		id: null,
 		pacienteID: 0,
-		pacienteNombre: '',
+		pacienteNombre: { firstName: '', lastName: '' },
 		td: '',
 		dateTD: '',
 		sr: '',
@@ -95,7 +116,7 @@
 				// Si el error es que no se encontro el paciente, agregar a data el id del paciente de la variable pacienteID
 				data = {
 					id: null,
-					pacienteNombre: '',
+					pacienteNombre: { firstName: '', lastName: '' },
 					pacienteID: pacienteID,
 					td: '',
 					dateTD: '',
@@ -112,18 +133,25 @@
 					extras: '',
 					documento: null
 				};
-				console.log(errorData.pacienteNombre);
+				// console.log(errorData.pacienteNombre);
 				nombrePaciente = errorData.pacienteNombre;
 				return null;
 			}
 
 			data = await response.json();
-			console.log(data);
+			// Actualizar el estado de los checkboxes basado en la presencia de datos
+			tdChecked = data.td ? true : false;
+			srChecked = data.sr ? true : false;
+			influenzaChecked = data.influenza ? true : false;
+			cartillaChecked = data.cartilla ? true : false;
+			drogasChecked = data.drogas ? true : false;
+			otrosChecked = data.otros ? true : false;
+
+			// console.log(data);
 			// si data es null, agregar a data el id del paciente de la variable pacienteID
 			nombrePaciente = data.pacienteNombre.firstName + ' ' + data.pacienteNombre.lastName;
 
 			// console.log(nombrePaciente);
-
 			return data;
 		} catch (error) {
 			console.error('Error:', error);
@@ -132,14 +160,14 @@
 	}
 
 	// funcion para hacer el POST de los datos de manera asincrona
-	async function postBiologicos(data: Data, tableName: string) {
+	async function postBiologicos(data: BiologicosFormulario, tableName: string, porcentaje:number) {
 		try {
 			const response = await fetch('/api/formularios/post', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ data, tableName })
+				body: JSON.stringify({ data, tableName, porcentaje })
 			});
 
 			if (!response.ok) {
@@ -166,8 +194,10 @@
 
 	function handleSubmit(event: Event) {
 		event.preventDefault();
-		// console.log(data);
-		postBiologicos(data, 'biologicos');
+		console.log(data);
+		//eliminar la columna pacienteNombre de data
+		delete data.pacienteNombre;
+		postBiologicos(data, 'biologicos', completionPercentage);
 	}
 
 	function updateCompletionPercentage() {
