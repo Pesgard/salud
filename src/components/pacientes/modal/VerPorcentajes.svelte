@@ -46,7 +46,7 @@
 		</header>
 		<article>{$modalStore[0].body ?? '(body missing)'}</article>
 
-		<div class="{cForm} flex flex-wrap gap-4 justify-center">
+		<div class="{cForm} grid grid-cols-5 gap-4 justify-center">
 			{#each campos as campo, i}
 				<div class="flex flex-col gap-4 items-center justify-center mb-4">
 					<button type="button" class="btn !bg-transparent btn-sm">
