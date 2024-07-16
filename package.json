@@ -15,6 +15,7 @@
     "@skeletonlabs/skeleton": "2.9.1",
     "@skeletonlabs/tw-plugin": "0.4.0",
     "@sveltejs/adapter-auto": "^3.0.0",
+    "@sveltejs/adapter-vercel": "^5.4.1",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
     "@tailwindcss/forms": "0.5.7",
@@ -42,11 +43,11 @@
   "dependencies": {
     "@floating-ui/dom": "1.6.3",
     "@fortawesome/fontawesome-free": "^6.5.2",
+    "@skeletonlabs/skeleton": "2.9.1",
+    "@skeletonlabs/tw-plugin": "0.4.0",
     "@supabase/ssr": "^0.3.0",
     "@supabase/supabase-js": "^2.43.2",
     "@vincjo/datatables": "^1.14.5",
-    "highlight.js": "11.9.0",
-    "@skeletonlabs/skeleton": "2.9.1",
-    "@skeletonlabs/tw-plugin": "0.4.0"
+    "highlight.js": "11.9.0"
   }
 }
