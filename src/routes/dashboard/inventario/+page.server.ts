@@ -1,36 +1,35 @@
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
-	// Consulta a la tabla medicamento
-	const { data: medicamentos } = await supabase.from('medicamento').select('*');
-	// Agregar la información de los detalles de los medicamentos
-	for (let i = 0; medicamentos && i < medicamentos.length; i++) {
-		const idMedicamento = medicamentos[i].id;
-		const { data: detalles } = await supabase
-			.from('detalleMedicamento')
-			.select('*')
-			.eq('idMedicamento', idMedicamento);
-		medicamentos[i].detalles = detalles;
-	}
+	// // Realizar consultas a las tablas medicamentos y botiquines en paralelo
+	// const [medicamentosResult, botiquinesResult] = await Promise.all([
+	// 	supabase.from('medicamento').select('*'),
+	// 	supabase.from('botiquines').select('*')
+	// ]);
 
-	// Consulta a la tabla botiquines
-	const { data: botiquines } = await supabase.from('botiquines').select('*');
-	// Agregar la información de los detalles de los botiquines
-	for (let i = 0; botiquines && i < botiquines.length; i++) {
-		const idBotiquin = botiquines[i].id;
-		const { data: detalles } = await supabase
-			.from('detalleBotiquin')
-			.select(
-				'medicamento(nombre, ingredienteActivo, gramaje, tipo), cantidadUnitaria, idMedicamento'
-			)
-			.eq('idBotiquin', idBotiquin);
-		botiquines[i].detalles = detalles;
-	}
+	// const medicamentos = medicamentosResult.data || [];
+	// const botiquines = botiquinesResult.data || [];
 
-	console.log(botiquines);
+	// Obtener los detalles de medicamentos en paralelo
+	const { data: medicamentos } = await supabase
+		.from('medicamento')
+		.select('*, detalleMedicamento(*)');
+	console.log(medicamentos);
+	// Obtener los detalles de botiquines en paralelo
+	const { data: botiquin, error:errorBotiquines } = await supabase
+		.from('botiquines')
+		.select(
+			'*, detalleBotiquin(*, medicamento(nombre, gramaje, tipo))'
+		);
+		if (errorBotiquines) {
+			console.log(errorBotiquines);
+		}
+	console.log(botiquin);
 
-	return { medicamentos, botiquines };
+	return { medicamentos: medicamentos, botiquines: botiquin };
+
 };
+
 
 export const actions: Actions = {
 	medicamento: async ({ request, locals: { supabase } }) => {

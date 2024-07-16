@@ -16,7 +16,7 @@
 	export let data;
 
 	let api = data.medicamentos;
-	// console.log(api);
+	console.log(api);
 
 	const handler = new DataHandler(api, { rowsPerPage: 5 });
 	const rows = handler.getRows();
@@ -50,6 +50,7 @@
 	// ---------------------------- Modal Detalles Medicmanto ----------------------------
 
 	function openModalDetalles(medicamento: any) {
+		console.log(medicamento);
 		const modalComponentDetalles = {
 			ref: EditarMedicamento,
 			props: { medicamento }
@@ -71,6 +72,8 @@
 	}
 
 	function openModalDelete(idMedicamento: number, nombreMedicamento: string) {
+		console.log(idMedicamento, nombreMedicamento);
+		
 		const modalComponent = {
 			ref: EliminarMedicamento,
 			props: { idMedicamento, nombreMedicamento }
@@ -147,7 +150,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each $rows as row, index}
+			{#each $rows as row}
 				<tr>
 					<td>{row.nombre}</td>
 					<td>{row.ingredienteActivo}</td>
@@ -155,7 +158,7 @@
 					<td>
 						<button
 							class="btn variant-filled-surface hover:variant-soft-primary"
-							on:click={() => openModalDetalles(api[index])}
+							on:click={() => openModalDetalles(row)}
 						>
 							<i class="fa-solid fa-circle-info"></i>
 						</button>
@@ -170,7 +173,7 @@
 					</td>
 					<td>
 						<button class="btn variant-filled-primary"
-						on:click={() => openModalEgresar(api[index])}>
+						on:click={() => openModalEgresar(row)}>
 							<i class="fa-solid fa-minus"></i>
 						</button>
 					</td>

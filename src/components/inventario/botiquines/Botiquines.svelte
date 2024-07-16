@@ -16,7 +16,7 @@
 
 	let botiquines = data.botiquines;
 	let medicamentos = data.medicamentos;
-	// console.log(botiquines);
+	console.log(botiquines);
 
 	const handler = new DataHandler(botiquines, { rowsPerPage: 5 });
 	const rows = handler.getRows();

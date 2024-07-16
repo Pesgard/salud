@@ -19,13 +19,13 @@
 	let cantidadEgreso = 0;
 
 	function realizarEgreso() {
-		let piezasRestantes = medicamento.detalles[0].cantidad - cantidadEgreso;
+		let piezasRestantes = medicamento.detalleMedicamento.cantidad - cantidadEgreso;
 		if (piezasRestantes < 0) {
 			// Si las piezas no son suficientes, disminuir una caja y ajustar las piezas unitarias
-			if (medicamento.detalles[0].caja > 0) {
-				medicamento.detalles[0].caja -= 1;
+			if (medicamento.detalleMedicamento.caja > 0) {
+				medicamento.detalleMedicamento.caja -= 1;
 				piezasRestantes += 12; // Asumiendo que cada caja tiene 12 piezas
-				medicamento.detalles[0].cantidad = piezasRestantes;
+				medicamento.detalleMedicamento.cantidad = piezasRestantes;
 			} else {
 				// Si no hay cajas disponibles
 				alert('No hay suficientes cajas para completar el egreso.');
@@ -33,7 +33,7 @@
 			}
 		} else {
 			// Si hay suficientes piezas en la misma caja
-			medicamento.detalles[0].cantidad = piezasRestantes;
+			medicamento.detalleMedicamento.cantidad = piezasRestantes;
 		}
         console.log(medicamento);
 		closeModal();
@@ -62,10 +62,10 @@
 						<p><strong>Nombre del Medicamento:</strong> {medicamento.nombre}</p>
 						<p><strong>Ingrediente Activo:</strong> {medicamento.ingredienteActivo}</p>
 						<p><strong>Gramaje/Dosis:</strong> {medicamento.gramaje} {medicamento.tipo}</p>
-						<p><strong>Fecha de Caducidad:</strong> {medicamento.detalles[0].fechaCaducidad}</p>
-						<p><strong>Fecha de Entrada:</strong> {medicamento.detalles[0].fechaEntrada}</p>
-						<p><strong>Cajas:</strong> {medicamento.detalles[0].caja}</p>
-						<p><strong>Contenido Unitario:</strong> {medicamento.detalles[0].cantidad} piezas</p>
+						<p><strong>Fecha de Caducidad:</strong> {medicamento.detalleMedicamento.fechaCaducidad}</p>
+						<p><strong>Fecha de Entrada:</strong> {medicamento.detalleMedicamento.fechaEntrada}</p>
+						<p><strong>Cajas:</strong> {medicamento.detalleMedicamento.caja}</p>
+						<p><strong>Contenido Unitario:</strong> {medicamento.detalleMedicamento.cantidad} piezas</p>
 					</div>
 
 					<label class="label mt-4">

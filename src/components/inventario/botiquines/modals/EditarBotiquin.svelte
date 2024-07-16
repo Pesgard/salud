@@ -8,23 +8,20 @@
 	export let botiquin: any;
 	export let medicamentos: any;
 
-	// console.log(medicamentos);
-	// console.log(botiquin);
+	console.log(medicamentos);
+	console.log(botiquin);
 
 	//pop Up
 	let inputDemo = '';
 	let inputValue = '';
 	let medicamentoSeleccionado = '';
-	let medicamentosBotiquin = '';
 	let checkMedicamento = false;
 	let checkDelete = false;
 	let checkEdit = false;
 	let piezas = 1; // Cambiado de 0 a 1 para establecer el mínimo en 1
 
 	// Extrae los idMedicamento de los detalles del botiquín
-	const idsEnBotiquin = new Set(
-		botiquin.detalles.map((detalle: { idMedicamento: any }) => detalle.idMedicamento)
-	);
+	const idsEnBotiquin = new Set(botiquin.detalleBotiquin.map((detalle: { idMedicamento: any; }) => detalle.idMedicamento));
 
 	// Filtra los medicamentos para incluir solo aquellos que no están en botiquin.detalles
 	const medicamentosFiltrados = medicamentos.filter(
@@ -104,16 +101,16 @@
 			<div>
 				<h2 class={cHeader}>Medicamentos</h2>
 				<div class={cColumnContainer}>
-					{#each botiquin.detalles as medicamento}
+					{#each botiquin.detalleBotiquin as detalle, index}
 						<div class="card">
-							<h3>{medicamento.medicamento.nombre}</h3>
-							<p>{medicamento.medicamento.gramaje} {medicamento.medicamento.tipo}</p>
-							<p>{medicamento.cantidadUnitaria} Pzs</p>
+							<h3>{detalle.medicamento.nombre}</h3>
+							<p>{detalle.medicamento.gramaje + ' ' + detalle.medicamento.tipo}</p>
+							<p>{detalle.cantidadUnitaria} Pzs</p>
 							<button
 								class="btn variant-soft-primary"
-								on:click={() => editSelectedMedicamento(medicamento)}>Editar</button
+								on:click={() => editSelectedMedicamento(detalle)}>Editar</button
 							>
-							<button class="btn" on:click={() => deleteMedicamento(medicamento)}>Eliminar</button>
+							<button class="btn" on:click={() => deleteMedicamento(detalle)}>Eliminar</button>
 						</div>
 					{/each}
 				</div>
@@ -237,52 +234,36 @@
 					<div class="card p-4">
 						<p>{medicamentoSeleccionado}</p>
 
-						<form action="?/agregarMedicamento" method="POST">
-							<input class="input" name="idMedicamento" value={inputValue} hidden />
-							<input class="input" name="idBotiquin" value={botiquin.id} hidden />
-
-							<div class="input-group input-group-divider grid-cols-[1fr_auto]">
+						<form action="?/agregarMedicamento" method="POST" class={cForm}>
+							<label hidden
+								>idMedicamento
+								<input class="input" type="text" name="idMedicamento" value={inputValue} required />
+							</label>
+							<label hidden
+								>idBotiquin
+								<input class="input" type="text" name="idBotiquin" value={botiquin.id} required />
+							</label>
+							<label
+								>Piezas
 								<input
-									name="cantidadUnitaria"
 									class="input"
 									type="number"
-									placeholder="No. Piezas"
-									bind:value={piezas}
+									name="cantidadUnitaria"
+									value={piezas}
 									min="1"
-									on:input={(e) => (piezas = e.target ? Math.max(e.target.value, 0) : 0)}
-									disabled={!checkMedicamento}
 									required
 								/>
+							</label>
 
-								<button
-									formaction="?/agregarMedicamento"
-									class={checkMedicamento
-										? 'btn variant-filled-secondary'
-										: 'btn variant-soft-secondary'}
-									disabled={!checkMedicamento || piezas < 1}
-								>
-									<i class="fa-solid fa-plus" />
-									<span>Agregar</span>
-								</button>
-							</div>
+							<button class="btn variant-filled-primary m-4">Agregar</button>
 						</form>
-
-						<!-- Boton cancelar -->
-						<div class="w-full mt-4 flex flex-row justify-end items-end">
-							<button
-								class="btn variant-soft-secondary"
-								on:click={() => {
-									checkMedicamento = false;
-									piezas = 1; // Restablece piezas a 1 al cancelar
-									inputDemo = '';
-								}}
-							>
-								Cancelar
-							</button>
-						</div>
 					</div>
 				{/if}
 			</div>
+		</div>
+
+		<div class="flex justify-end">
+			<button class="btn variant-filled-primary" on:click={parent.onClose}>Cerrar</button>
 		</div>
 	</div>
 {/if}

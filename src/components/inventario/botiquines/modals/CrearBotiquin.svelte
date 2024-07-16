@@ -5,7 +5,7 @@
 	// Props
 	export let parent: any;
 	export let medicamentos: any;
-	// console.log(medicamentos);
+	console.log(medicamentos);
 
 	//pop Up
 	let inputDemo = '';

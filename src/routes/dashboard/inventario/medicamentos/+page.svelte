@@ -48,7 +48,7 @@
 </ol>
 
 <div class="max-w-full mx-auto space-y-4 flex flex-col items-center justify-center">
-	<p>Tabla de Seguimientos</p>
+	<p>Tabla de Medicamentos</p>
 	{#if data.length > 0}
 		<TablasPacientes data={data} excludeKeys={[]} tituloTabla={"Informacion de Medicamentos"} />
 	{:else}

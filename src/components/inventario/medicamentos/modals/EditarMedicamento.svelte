@@ -4,7 +4,7 @@
 
 	export let parent: any;
 	export let medicamento;
-	// console.log(medicamento);
+	console.log(medicamento);
 
 	function closeModal() {
 		modalStore.close();
@@ -76,7 +76,7 @@
 							name="fechaCaducidad"
 							class="input"
 							type="date"
-							bind:value={medicamento.detalles[0].fechaCaducidad}
+							bind:value={medicamento.detalleMedicamento.fechaCaducidad}
 						/>
 					</label>
 
@@ -86,7 +86,7 @@
 							name="fechaEntrada"
 							class="input"
 							type="date"
-							bind:value={medicamento.detalles[0].fechaEntrada}
+							bind:value={medicamento.detalleMedicamento.fechaEntrada}
 						/>
 					</label>
 
@@ -98,7 +98,7 @@
 							type="number"
 							step="0.01"
 							placeholder="Caja..."
-							bind:value={medicamento.detalles[0].caja}
+							bind:value={medicamento.detalleMedicamento.caja}
 						/>
 					</label>
 
@@ -110,7 +110,7 @@
 							type="number"
 							step="0.01"
 							placeholder="No.Piezas..."
-							bind:value={medicamento.detalles[0].cantidad}
+							bind:value={medicamento.detalleMedicamento.cantidad}
 						/>
 						<!-- Agregar más campos de detalles según sea necesario -->
 					</label>
