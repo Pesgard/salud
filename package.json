@@ -45,6 +45,8 @@
     "@supabase/ssr": "^0.3.0",
     "@supabase/supabase-js": "^2.43.2",
     "@vincjo/datatables": "^1.14.5",
-    "highlight.js": "11.9.0"
+    "highlight.js": "11.9.0",
+    "@skeletonlabs/skeleton": "2.9.1",
+    "@skeletonlabs/tw-plugin": "0.4.0"
   }
 }
