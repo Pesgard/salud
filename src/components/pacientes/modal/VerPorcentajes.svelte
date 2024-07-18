@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { getModalStore, ProgressRadial } from '@skeletonlabs/skeleton';
+	import type { MouseEventHandler } from 'svelte/elements';
 
 	export let porcentajes: any[];
 	export let firstName: string;
 	export let lastName: string;
+	export let pacienteID: string;
 
 	let campos: string[] = [
 		'Actividad Fisica',
@@ -17,8 +19,18 @@
 		'Seguridad'
 	];
 
+	function navigateToForm(pacienteID: string, table: string): MouseEventHandler<HTMLButtonElement> {
+		return () => {
+			console.log(pacienteID);
+			console.log(table);
+			window.location.href = `/dashboard/seguimientos/${pacienteID}-${table}`;
+		};
+	}
+
 	// Convertir los porcentajes a un array plano y los valores null a 0
-	porcentajes = porcentajes.flat().map((porcentaje) => (porcentaje === null ? 0 : Math.round(porcentaje)));
+	porcentajes = porcentajes
+		.flat()
+		.map((porcentaje) => (porcentaje === null ? 0 : Math.round(porcentaje)));
 
 	const modalStore = getModalStore();
 
@@ -37,19 +49,20 @@
 		<header class={cHeader}>
 			{$modalStore[0].title ?? '(title missing)'}
 			<!-- boton cerrar -->
-			<button
-			class="btn space-x-4 bg-tranpsarent hover:variant-soft-primary"
-			on:click={closeModal}
-		>
-			<i class="fa-solid fa-xmark" />
-		</button>
+			<button class="btn space-x-4 bg-tranpsarent hover:variant-soft-primary" on:click={closeModal}>
+				<i class="fa-solid fa-xmark" />
+			</button>
 		</header>
 		<article>{$modalStore[0].body ?? '(body missing)'}</article>
 
 		<div class="{cForm} grid grid-cols-5 gap-4 justify-center">
 			{#each campos as campo, i}
 				<div class="flex flex-col gap-4 items-center justify-center mb-4">
-					<button type="button" class="btn !bg-transparent btn-sm">
+					<button
+						on:click={navigateToForm(pacienteID, campo)}
+						type="button"
+						class="btn !bg-transparent btn-sm"
+					>
 						<ProgressRadial value={porcentajes[i] ?? 0} font={80}>{porcentajes[i]}%</ProgressRadial>
 					</button>
 					<span class="h3 text-center h-10 font-bold">{campo}</span>

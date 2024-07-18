@@ -1,24 +1,24 @@
 <script lang="ts">
 	import '@fortawesome/fontawesome-free/css/all.min.css';
-	import { FileButton, getModalStore, ProgressRadial } from '@skeletonlabs/skeleton';
-	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
-	import Buscador from '../../buscador/Buscador.svelte';
+	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import type { FisicaFormulario } from '../../../interface/Formularios';
 
 	// recibir valores de pacientes
-	export let pacientes: any;
+	export let data: FisicaFormulario;
+	console.log(data);
 
-	console.log(pacientes);
+	const nombrePaciente = data.pacienteNombre.firstName + ' ' + data.pacienteNombre.lastName;
 
-	// valor inicial de idPaciente
-	let pacienteID: number = 0;
-
-	let nombrePaciente: string = '';
 	let completionPercentage: number = 0;
 
 	// Variables para el estado de los checkboxes
-	let deportesChecked = false;
+	let deportesChecked = false;	
 	let otrosChecked = false;
+
+	// Actualizar el estado de los checkboxes basado en la presencia de datos
+	deportesChecked =
+		data.deporte !== null || data.deporteInicio !== null || data.deporteFinal !== null;
+	otrosChecked = data.otros !== null || data.otrosInicio !== null || data.otrosFinal !== null;
 
 	$: {
 		let totalFields = 0;
@@ -43,87 +43,6 @@
 		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
 	}
 
-	// valores iniciales de los datos
-	let data: FisicaFormulario = {
-		id: null,
-		pacienteID: 0,
-		pacienteNombre: { firstName: '', lastName: '' },
-		deporte: null,
-		deporteInicio: null,
-		deporteFinal: null,
-		otros: null,
-		otrosInicio: null,
-		otrosFinal: null,
-		extra: '',
-		documento: null
-	};
-
-	// modal
-	const modalStore = getModalStore();
-
-	//Componente del modal
-	const modalComponent: ModalComponent = {
-		ref: Buscador,
-		props: { pacientes }
-	};
-
-	const modal: ModalSettings = {
-		type: 'component',
-		component: modalComponent,
-		response: (r) => {
-			pacienteID = r;
-			console.log(pacienteID);
-			getFormulario(pacienteID, 'actividadFisica');
-		}
-	};
-
-	// Funcion para obtener infomacion del formulario de el paciente
-	async function getFormulario(pacienteID: number, tableName: string) {
-		const response = await fetch('/api/formularios/get', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ pacienteID, tableName })
-		});
-
-		// Si el fetching da error
-		if (!response.ok) {
-			const errorData = await response.json();
-			console.error('Error', errorData);
-
-			// Modificacion de data
-			data = {
-				id: null,
-				pacienteNombre: { firstName: '', lastName: '' },
-				pacienteID: pacienteID,
-				deporte: null,
-				deporteInicio: null,
-				deporteFinal: null,
-				otros: null,
-				otrosInicio: null,
-				otrosFinal: null,
-				extra: '',
-				documento: null
-			};
-			nombrePaciente = errorData.pacienteNombre;
-			return null;
-		}
-
-		// Si el fetching es exitoso
-		data = await response.json();
-
-		// Actualizar el estado de los checkboxes basado en la presencia de datos
-		deportesChecked =
-			data.deporte !== null || data.deporteInicio !== null || data.deporteFinal !== null;
-		otrosChecked = data.otros !== null || data.otrosInicio !== null || data.otrosFinal !== null;
-
-		// darle el nombre al paciente
-		nombrePaciente = data.pacienteNombre.firstName + ' ' + data.pacienteNombre.lastName;
-
-		return data;
-	}
-
 	//Funcion para enviar la informacion del formulario
 	async function sendFormulario(data: FisicaFormulario, tableName: string, porcentaje: number) {
 		const response = await fetch('/api/formularios/post', {
@@ -146,13 +65,8 @@
 		const result = await response.json();
 		alert(result.info);
 		// redireccionar a la pagina del formulario
-		window.location.href = '/dashboard/home/actividadFisica';
+		window.location.href = '/dashboard/seguimientos';
 		return result;
-	}
-
-	// Funcion para abrir el modal
-	function openModal() {
-		modalStore.trigger(modal);
 	}
 
 	// Funcion para enviar el formulario
@@ -164,7 +78,7 @@
 	}
 </script>
 
-<div class="space-y-10">
+<div class="space-y-10 m-20">
 	<div
 		class="previewer shadow-2xl shadow-surface-500/10 dark:shadow-black/10 rounded-container-token overflow-hidden"
 	>
@@ -187,15 +101,6 @@
 			{/if}
 
 			<div class="w-fit flex flex-row items-center">
-				<div class="mx-2 md:inline md:ml-4">
-					<button
-						on:click={openModal}
-						class="btn space-x-4 variant-soft hover:variant-soft-primary"
-					>
-						<i class="fa-solid fa-magnifying-glass text-sm"></i>
-						<small class="hidden md:inline-block">Buscar Pacientes</small>
-					</button>
-				</div>
 				<!-- Barra de progreso -->
 				<ProgressRadial value={completionPercentage} width="w-20" class="text-primary-500-token">
 					{completionPercentage}%

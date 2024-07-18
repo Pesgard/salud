@@ -66,11 +66,11 @@
 	const modalStore = getModalStore();
 
 	// funcion para abrir el modal
-	function modalComponentPorcentajes(info: any, firstName: string, lastName: string) {
+	function modalComponentPorcentajes(info: any, firstName: string, lastName: string, pacienteID: string) {
 		// console.log(info);
 		const c: ModalComponent = {
 			ref: VerPorcentajes,
-			props: { porcentajes: info, firstName, lastName }
+			props: { porcentajes: info, firstName, lastName, pacienteID }
 		};
 		const modal: ModalSettings = {
 			type: 'component',
@@ -144,7 +144,7 @@
 							<div class="flex flex-row items-center justify-center">
 								<button
 									on:click={() =>
-										modalComponentPorcentajes(row.detallePorcentaje, row.firstName, row.lastName)}
+										modalComponentPorcentajes(row.detallePorcentaje, row.firstName, row.lastName, row.pacienteID)}
 									class="btn variant-filled-surface hover:variant-soft-primary"
 								>
 									<i class="fa-solid fa-eye"></i>

@@ -2,17 +2,15 @@
 	import { FileButton, getModalStore, ProgressRadial } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
 	import '@fortawesome/fontawesome-free/css/all.min.css';
-	import Buscador from '../buscador/Buscador.svelte';
-	import type { NutricionFormulario } from '../../interface/Formularios';
+	import type { NutricionFormulario } from '../../../interface/Formularios';
 
-	export let pacientes: any; // Propiedad para recibir los pacientes
-	let pacienteID: number = 0; // Valor inicial de pacienteID
+	export let data: NutricionFormulario; // Propiedad para recibir los pacientes
 
 	//Variable para mostrar nombre del paciente
-	let nombrePaciente: string = '';
+	let nombrePaciente: string = data.pacienteNombre.firstName + ' ' + data.pacienteNombre.lastName;
 
 	//variable para activar y desactivar el formulario
-	let formActive: boolean = false;
+	let formActive: boolean = true;
 
 	$: {
 		let totalFields = 0;
@@ -34,101 +32,6 @@
 		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
 	}
 
-	function updateCompletionPercentage() {
-		let totalFields = 0;
-		let filledFields = 0;
-
-		if (data.date) filledFields++;
-		totalFields++;
-		if (data.peso) filledFields++;
-		totalFields++;
-		if (data.imc) filledFields++;
-		totalFields++;
-		if (data.resultado) filledFields++;
-		totalFields++;
-		if (data.txNutricion) filledFields++;
-		totalFields++;
-		if (data.extra) filledFields++;
-		totalFields++;
-
-		completionPercentage = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
-	}
-
-	let data: NutricionFormulario = {
-		id: null,
-		pacienteID: 0,
-		pacienteNombre: { firstName: '', lastName: '' },
-		date: null,
-		peso: 0,
-		imc: 0,
-		resultado: 0,
-		txNutricion: '',
-		extra: '',
-		documento: ''
-	};
-
-	const modalStore = getModalStore();
-	const modalComponent: ModalComponent = {
-		ref: Buscador,
-		props: { pacientes }
-	};
-
-	const modal: ModalSettings = {
-		type: 'component',
-		component: modalComponent,
-		response: (r) => {
-			pacienteID = r;
-			if (pacienteID) {
-				formActive = true;
-			} else {
-				formActive = false;
-			}
-			getNutricional(pacienteID, 'nutricional');
-		}
-	};
-
-	//funcion para hacer el fetching de datos de manera asincrona
-	async function getNutricional(pacienteID: number, tableName: string) {
-		try {
-			const response = await fetch('/api/formularios/get', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ pacienteID, tableName })
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				data = {
-					id: null,
-					pacienteNombre: { firstName: '', lastName: '' },
-					pacienteID: pacienteID,
-					date: null,
-					peso: 0,
-					imc: 0,
-					resultado: 0,
-					txNutricion: '',
-					extra: '',
-					documento: ''
-				};
-				// console.log(errorData.pacienteNombre);
-				nombrePaciente = errorData.pacienteNombre;
-				return null;
-			}
-
-			data = await response.json();
-
-			// Actualizar el estado de los checkbox basado en la presencia de datos
-
-			nombrePaciente = data.pacienteNombre.firstName + ' ' + data.pacienteNombre.lastName;
-			return data;
-		} catch (error) {
-			console.error('Error:', error);
-			return null;
-		}
-	}
-
 	// funcion para hacer el POST de los datos de manera asincrona
 	async function postNutricional(data: NutricionFormulario, tableName: string, porcentaje: number) {
 		try {
@@ -148,16 +51,12 @@
 
 			const result = await response.json();
 			alert(result.info);
-			window.location.href = '/dashboard/home/estadoNutricional';
+			window.location.href = '/dashboard/seguimientos';
 			return result;
 		} catch (error) {
 			console.error('Error:', error);
 			return null;
 		}
-	}
-
-	function openModal() {
-		modalStore.trigger(modal);
 	}
 
 	function handleSubmit(event: Event) {
@@ -194,15 +93,6 @@
 			{/if}
 
 			<div class="w-fit flex flex-row items-center">
-				<div class="mx-2 md:inline md:ml-4">
-					<button
-						on:click={openModal}
-						class="btn space-x-4 variant-soft hover:variant-soft-primary"
-					>
-						<i class="fa-solid fa-magnifying-glass text-sm"></i>
-						<small class="hidden md:inline-block">Buscar Pacientes</small>
-					</button>
-				</div>
 				<!-- Barra de progreso -->
 				<ProgressRadial value={completionPercentage} width="w-20" class="text-primary-500-token">
 					{completionPercentage}%
@@ -221,13 +111,7 @@
 						<p class="flex items-center space-x-2">
 							<span class="label">Fecha</span>
 						</p>
-						<input
-							class="input"
-							type="date"
-							bind:value={data.date}
-							on:input={updateCompletionPercentage}
-							disabled={!formActive}
-						/>
+						<input class="input" type="date" bind:value={data.date} disabled={!formActive} />
 					</div>
 					<hr />
 
@@ -241,7 +125,6 @@
 							type="number"
 							placeholder="Kg"
 							bind:value={data.peso}
-							on:input={updateCompletionPercentage}
 							disabled={!formActive}
 						/>
 					</div>
@@ -257,7 +140,6 @@
 							type="number"
 							placeholder="IMC"
 							bind:value={data.imc}
-							on:input={updateCompletionPercentage}
 							disabled={!formActive}
 						/>
 					</div>
@@ -273,7 +155,6 @@
 							type="text"
 							placeholder="Resultado"
 							bind:value={data.resultado}
-							on:input={updateCompletionPercentage}
 							disabled={!formActive}
 						/>
 					</div>
@@ -289,7 +170,6 @@
 							type="text"
 							placeholder="Tx Nutricion"
 							bind:value={data.txNutricion}
-							on:input={updateCompletionPercentage}
 							disabled={!formActive}
 						/>
 					</div>
@@ -305,7 +185,6 @@
 							type="text"
 							placeholder="Extra"
 							bind:value={data.extra}
-							on:input={updateCompletionPercentage}
 							disabled={!formActive}
 						/>
 					</div>
