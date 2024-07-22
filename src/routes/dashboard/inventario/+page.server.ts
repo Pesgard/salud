@@ -14,22 +14,18 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 	const { data: medicamentos } = await supabase
 		.from('medicamento')
 		.select('*, detalleMedicamento(*)');
-	console.log(medicamentos);
+	// console.log(medicamentos);
 	// Obtener los detalles de botiquines en paralelo
-	const { data: botiquin, error:errorBotiquines } = await supabase
+	const { data: botiquin, error: errorBotiquines } = await supabase
 		.from('botiquines')
-		.select(
-			'*, detalleBotiquin(*, medicamento(nombre, gramaje, tipo))'
-		);
-		if (errorBotiquines) {
-			console.log(errorBotiquines);
-		}
-	console.log(botiquin);
+		.select('*, detalleBotiquin(*, medicamento(nombre, gramaje, tipo))');
+	if (errorBotiquines) {
+		console.log(errorBotiquines);
+	}
+	// console.log(botiquin);
 
 	return { medicamentos: medicamentos, botiquines: botiquin };
-
 };
-
 
 export const actions: Actions = {
 	medicamento: async ({ request, locals: { supabase } }) => {
@@ -76,13 +72,16 @@ export const actions: Actions = {
 
 		const fechaFormateada = `${year}-${month}-${day}`;
 
+		console.log(idMedicamento, caja, contenidoUnitario, caducidad, fechaFormateada);
+
 		const { error: errorDetalle } = await supabase.from('detalleMedicamento').insert([
 			{
 				idMedicamento: idMedicamento,
 				caja: caja,
 				cantidad: contenidoUnitario,
 				fechaCaducidad: caducidad,
-				fechaEntrada: fechaFormateada
+				fechaEntrada: fechaFormateada,
+				unidadesCaja: contenidoUnitario
 			}
 		]);
 

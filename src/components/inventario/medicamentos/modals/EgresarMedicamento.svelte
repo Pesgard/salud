@@ -4,7 +4,7 @@
 
 	export let parent: any;
 	export let medicamento: any;
-	console.log(medicamento);
+	// console.log(medicamento);
 
 	function closeModal() {
 		modalStore.close();
@@ -18,25 +18,36 @@
 
 	let cantidadEgreso = 0;
 
-	function realizarEgreso() {
-		let piezasRestantes = medicamento.detalleMedicamento.cantidad - cantidadEgreso;
-		if (piezasRestantes < 0) {
-			// Si las piezas no son suficientes, disminuir una caja y ajustar las piezas unitarias
-			if (medicamento.detalleMedicamento.caja > 0) {
-				medicamento.detalleMedicamento.caja -= 1;
-				piezasRestantes += 12; // Asumiendo que cada caja tiene 12 piezas
-				medicamento.detalleMedicamento.cantidad = piezasRestantes;
-			} else {
-				// Si no hay cajas disponibles
-				alert('No hay suficientes cajas para completar el egreso.');
-				return;
-			}
+	async function submit(event: Event) {
+		event.preventDefault();
+		// console.log(event);
+		const form = event.target as HTMLFormElement;
+		const formData = new FormData(form);
+		const data = Object.fromEntries(formData.entries());
+		// console.log(medicamento);
+		// console.log(data);
+
+		const update = await egresarMedicamento(medicamento, data);
+		if (!update.error) {
+			alert(update.message);
+			closeModal();
+			window.location.reload();
 		} else {
-			// Si hay suficientes piezas en la misma caja
-			medicamento.detalleMedicamento.cantidad = piezasRestantes;
+			alert(update.error);
 		}
-        console.log(medicamento);
-		closeModal();
+	}
+
+	async function egresarMedicamento(medicamento: any, data: any) {
+		const response = await fetch(`/api/inventario/medicamento/egresar`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ data, medicamento })
+		});
+
+		const responseData = await response.json();
+		return responseData;
 	}
 </script>
 
@@ -51,7 +62,7 @@
 		<article>{$modalStore[0].body ?? '(body missing)'}</article>
 
 		<!-- Detalles de Medicamento y formulario -->
-		<form method="POST" action="?/updateMedicamento" class={cForm}>
+		<form class={cForm} on:submit|preventDefault={submit}>
 			<!-- Contenedor de Columnas -->
 			<div class={cColumnContainer}>
 				<!-- Columna de Datos Principales -->
@@ -62,10 +73,16 @@
 						<p><strong>Nombre del Medicamento:</strong> {medicamento.nombre}</p>
 						<p><strong>Ingrediente Activo:</strong> {medicamento.ingredienteActivo}</p>
 						<p><strong>Gramaje/Dosis:</strong> {medicamento.gramaje} {medicamento.tipo}</p>
-						<p><strong>Fecha de Caducidad:</strong> {medicamento.detalleMedicamento.fechaCaducidad}</p>
+						<p>
+							<strong>Fecha de Caducidad:</strong>
+							{medicamento.detalleMedicamento.fechaCaducidad}
+						</p>
 						<p><strong>Fecha de Entrada:</strong> {medicamento.detalleMedicamento.fechaEntrada}</p>
 						<p><strong>Cajas:</strong> {medicamento.detalleMedicamento.caja}</p>
-						<p><strong>Contenido Unitario:</strong> {medicamento.detalleMedicamento.cantidad} piezas</p>
+						<p>
+							<strong>Contenido Unitario:</strong>
+							{medicamento.detalleMedicamento.cantidad} piezas
+						</p>
 					</div>
 
 					<label class="label mt-4">
@@ -84,7 +101,7 @@
 			<!-- Footer debajo de las columnas -->
 			<footer class="modal-footer {parent.regionFooter} w-full mt-4">
 				<button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>Cancelar</button>
-				<button type="button" class="btn {parent.buttonPositive}" on:click={realizarEgreso}>Realizar Egreso</button>
+				<button type="submit" class="btn {parent.buttonPositive}">Realizar Egreso</button>
 			</footer>
 		</form>
 	</div>
